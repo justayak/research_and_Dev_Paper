@@ -79,61 +79,22 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 
 %--------------------------------------------------------------------------------
 
-\chapter*{Preface}
-\addcontentsline{toc}{chapter}{Preface}
-
-This is just an outline document.  All the paragraphs are given either as explanations or as examples and must disappear in your final document, except for the logical architecture.
-
-\bigskip
-
-For instance, this preface is optional.  It allows you to provide additional information to the reader about some additional goals of the report and the work, the context and environment, and more generally any aspect which is not part of the content of the work by itself.
-
-Here, it allows us to provide some insights about:
-\begin{itemize}
-	\item the way a research report must be written;
-	\item what is expected in various parts of such a report.
-\end{itemize}
-
-\bigskip
-
-First of all, a \emph{structured} document is the result of a process that leads to an organised and rather standard way to present a scientific work.  Most of the time this leads to a tree-like structure that is well illustrated by the table of contents.
-
-In such a structure, you have to clearly distinguish between the leaves and the internal nodes.  Leaves are the actual content of the work, whereas the rest of the tree describes a logical way to go through that stuff.
-
-In the simplest case, you just walk through from the hypotheses to the conclusion.  In most cases, the length of the path is too long to be understood clearly at a single level.  Therefore, the difficulties are split into smaller problems and the same step repeated, leading to the common tree structure.
-
-In a few cases, the hierarchical structure is not the best one.  For instance, a clearer view of your work could be a bi-dimensional matrix, or even a planar graph.  Nevertheless, you do have to use the hierarchical structure.  Even worse, the final report by itself is just a single sequence of sentences!  Therefore, the content of an inner node is just a way to help the reader understand where he or she is the large explanation of the work. Each inner node should contain its own introduction, a link between each of its sub-trees and a local conclusion.
-
-Of course, this recursive explanations lead to several repetitions in the text.  However, they are not presenting the subject with the same level of details.  Also, they considerably help the reader remember previous steps and results.  In fact, by using such a disciplined way of writing a report, all the sections headings could be removed!  As a consequence, we know that chapter, section, sub-section titles, etc., are \emph{not} actual text, but rather visual marks helping the reader to rapidly find a particular area of the work.  In the normal process of reading the whole report, the eyes do not read them!  So, do not use pronouns that refer to the title of the new section (e.g., after a title saying ``Database.'' do not use ``it,'' but repeat ``The database'' in the main text).
-
-The reader is directed to numerous sources in order to learn to better write a scientific document (e.g., \cite{Wolfe}).
-
-\bigskip
-
-In the sequel, some parts of this pseudo report have been written in a way closely related to the final result.  In contrast, some other parts give only rough hints and/or some examples.  This is due to the fact that it is not possible to provide a guide for each and every kind of work, e.g., strong mathematical modelling vs. engineering experiments.
-
-\bigskip
-
-Lastly, notice that the English version of the report model is still much shorter than its French counterpart.
-Therefore, if you are proficient enough in French, have a look at the other version.
-
-%--------------------------------------------------------------------------------
-
 \chapter{Introduction}
 
 Distributed collaborative editors like Google Docs, Etherpad or Microsoft Word Online enable users to work together on Documents not being hindered by space, time or organization. Every user of an collaborative system has the opportunity to write, edit or remove text, changes made to the document will reflect almost immediately to all other users who work on the same Document.
-Almost all current solutions utilize a Client-Server-Infrastructure with the Server being the final decision instance in case of a conflict.
+Users can also work on multiple documents at the same time, interacting with different groups of people.
+Internally every user holds a local copy of the document and broadcasts changes made to it while integrating changes made from remote users. Almost all current solutions utilize a Client-Server-Infrastructure with the Server being the final decision instance in case of a conflict.
+The centralization presents certain problems: The Server is a Single Point of Failure and introduces privacy and economic intelligence issues as well as limitations in terms of service and scalability. A possible solution to this problems is the full decentralization of the system.
+An eventual constistent (optimistic) replication (CRDT) with a well-scaling allocation algorithms like LSEQ can be used to synchronize local copies.
+The focus of this paper will be on the underlining network topology. 
 
 \section{Statement of the problem}
 
-The centralization introduces certain limitations and concerns: The Server is a Single Point of Failur and introduces privacy and economic intelligence issues.
 
 
 \section{Objectives}
 
-Sometimes, the introduced problem remains too large to be solved in a single study, e.g., too many potential solutions could be envisaged.  It is necessary to introduce additional objectives that are added as constraints to the resolution of the original research problem.  At the end of the work, you shall be able to compare the initial expectations and choices to the attained objectives and known limitations they incur.
-
-This and the previous section help understand the problem starting from a general and high-level point of view down to the \emph{necessary} details to understand the formal research problem.
+P2P
 
 \section{Work achieved}
 
