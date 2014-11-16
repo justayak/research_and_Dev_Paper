@@ -1,4 +1,4 @@
-\documentclass[11pt, english, screen]{report-rd-info}
+\documentclass[11pt, english]{report-rd-info}
    % - 12pt:  can be preferable to read the report on small screens, ask your supervisors
    % - screen:  to be removed in order to obtain a classical report
 \usepackage[latin1]{inputenc}
@@ -84,13 +84,12 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 Distributed collaborative editors like Google Docs, Etherpad or Microsoft Word Online enable users to work together on Documents not being hindered by space, time or organization. Every user of an collaborative system has the opportunity to write, edit or remove text, changes made to the document will reflect almost immediately to all other users who work on the same Document.
 Users can also work on multiple documents at the same time, interacting with different groups of people.
 Internally every user holds a local copy of the document and broadcasts changes made to it while integrating changes made from remote users. Almost all current solutions utilize a Client-Server-Infrastructure with the Server being the final decision instance in case of a conflict.
-The centralization presents certain problems: The Server is a Single Point of Failure and introduces privacy and economic intelligence issues as well as limitations in terms of service and scalability. A possible solution to this problems is the full decentralization of the system.
-An eventual constistent (optimistic) replication (CRDT) with a well-scaling allocation algorithms like LSEQ can be used to synchronize local copies.
-The focus of this paper will be on the underlining network topology. 
+The centralization presents certain problems: The Server is a Single Point of Failure and introduces privacy and economic intelligence issues as well as limitations in terms of service and scalability. A possible solution to this problems is the full decentralization of the system - local replicas can be synchronized through a Conflict-free Replicated Data Type (CRDT) which provide an eventual consistency without the need of an authority Server. Users are not connected in a star-network as imposed by the Server-Client-Architecture but are connected through a peer-to-peer based gossip protocol. We will call a user connected to a gossip protocol and working on one or more documents a process.
+A gossip protocol has the advantage of being highly resilent and scalable at the same time. To broadcast a message is sends to $\mathit{c}$ (also called FANOUT) randomly selected processes from the network. Likewise, a receiving process broadcasts the message to $\mathit{c}$ randomly selected processes and so forth.
 
 \section{Statement of the problem}
 
-
+Assuming that all processes are connected to one peer-to-peer network and that a very high number of $\mathit{n}$  processes will work on a moderate to high number of $\mathit{m}$ Documents ($n \geq m$)
 
 \section{Objectives}
 
