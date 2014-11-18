@@ -94,16 +94,15 @@ Message buffers and causality tracking ensure synchronicity between all peers.
 
 \section{Statement of the problem}
 
-Assuming a high number of $n$ processes that work on a moderate to high number of $m$  documents and that all processes are connected to one network to enjoy the advantages of a gossip protocol (resilent, healing abilitiy).
+Assuming a high number of $n$ processes that work on a moderate to high number of $m$  documents - all processes are connected to one ranomized gossip network to enjoy the advantages of a gossip protocol (resilent, healing ability).
+Suppose processes $p_1, ..., p_\frac{n}{m}$ work together on document $d_1$:
 
-Assuming processes $p_1, ..., p_\frac{n}{m}$ work together on document $d_1$ under a fully randomized gossip protocol.
+If $p_1$ wants to broadcast a message to all processes related to document $d_1$ we expect $(n-1)\pmb{H}_\frac{n}{m}$ messages to be gossiped until $p_2$ to $p_\frac{n}{m}$ are notfied (\emph{\color{red} is that assumption right or is it BS??}) - in a big network this will result in a high delay of document synchronisation between processes, furthermore it will generate a vast amount of unnecessary message sending as most of the processes are not interested in changes made to documents they are not working on.
 
-If $p_1$ wants to broadcast a message to all processes related to document $d_1$ we expect $(n-1)H_\frac{n}{m}$ messages to be gossiped until $p_2$ to $p_\frac{n}{m}$ are notfied (\emph{\color{red} is that assumption right or is it BS??}).
-
-Assuming that all processes are connected to one peer-to-peer network and that a very high number of $\mathit{n}$  processes will work on a moderate to high number of $\mathit{m}$ Documents ($n \geq m$) we will run into  
 \section{Objectives}
 
-P2P
+Objective of this paper is to present an algorithm to construct a network topology that incorporates the logical structure between processes that is laid out by documents and, furthermore, ensure that messages create a minimum of unnecessary noise - this topology will be called \textit{target topology}.
+
 
 \section{Work achieved}
 
@@ -117,18 +116,14 @@ Never let the reader wait till the end of the report in order to know the result
 
 \section{Report organisation}
 
-As soon as the overall picture has been drawn, the logical organisation of the report is described chapter by chapter.  The goal is to provide the reader with a detailed abstract of the whole report without having to read the introduction of each chapter. In addition, you can provide hints on the way the report can be read by different kinds of audience, e.g., skipping some chapters, changing the order, going first to the appendix, etc.
+The rest of this report is structured as follows:
 
-Roughly speaking, the report is probably to be split into three main parts.
-
-Chapter~\ref{chap:StateOfTheArt} studies related proposals of the scientific literature.  Analysing and comparing them help both to understand the limitations and to open new research directions.
-
-Chapter~\ref{chap:Proposals} studies, from the theoretical point of view, one or even several promising directions.  The consequences of the established and chosen hypotheses are pursued to the point only experiments can give satisfying answers.
-
-Chapter~\ref{chap:Experiments} follows a development, experiment, and analysis path in order to quantify the theoretical results.
-
-Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.
-
+\begin{itemize}
+    \item{\textbf{Chapter~\ref{chap:StateOfTheArt}} studies related proposals of the scientific literature addressing topics such as gossip protocols, exisiting membership protocols and CRDTs.}
+    \item{\textbf{Chapter~\ref{chap:Proposals}} describes the profile and ranking function for the T-Man Algorithm to build the \textit{target topology}.}
+    \item{\textbf{Chapter~\ref{chap:Experiments}} follows a development, experiment, and analysis path in order to quantify the theoretical results.}
+    \item{Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.}
+\end{itemize}
 
 %-------------------------------------------------------------------------------------------------------------
 
@@ -140,25 +135,17 @@ Finally, the conclusion summarises the work and introduce new research issues th
 \chapter{State of the Art}
 \label{chap:StateOfTheArt}
 
-The goal of this chapter is to give the necessary provision to understand and \emph{solve} the research problem.  In particular, you should not solve an already well-solved problem!  Neither should you reinvent solutions to basic sub-problems.  Should you find a solution to your original problem in the literature, then either a new/extended problem has to be designed according to this new knowledge, or a substantially different and/or better solution designed.
-
-Notice that most of the conclusions in this chapter must be taken with a grain of salt.  Oversights are always possible.  However, if \emph{very} recent or confidential contributions can be missed, the more established literature has to be known to some depth.  Some general background can be omitted from this chapter and put into Appendix~\ref{app:Reminder}.
-
-The chapter is most probably a sequence of previous proposals along with an analysis and comparison with respect to a set of criteria that have to be adequately designed.  The final conclusion of this chapter is some kind of table along with initial motivations for the proposed new solutions that will be discussed in chapters~\ref{chap:Proposals} and~\ref{chap:Experiments}.
-
-If this chapter tends to be too lengthy and clumsy, then split it into several chapters and create a part.
-
-Notice that it is in this chapter that you must adequately and honestly refer to all the work that you consulted.  In the following chapters, whenever and idea is not yours, you must again reference the source.  If this guidelines are not obeyed, you are committing plagiarism!
-
-Also note that the bibliography consists only of \emph{permanent} references, i.e., conference proceedings, journals, books, etc.  All the ``details,'' authors, title, journal or conference name, volume, number, pages, place, year, etc., have to be provided to their full extent, as exemplified in the fake bibliography of this model. They can be extended with references on the Web, which is appreciable for rapidly downloading a version of the reference work.
-
-In contrast, web sites alone must not be placed into the bibliography because they may rapidly disappear or be substantially modified after your reading.  However, you can mention them as footnotes.%
+This chapter introduces fundamental algorithms and concepts. 
 \footnote{For instance, the ``reference'' \cite{Wolfe} should really be located here: Joe  \textsc{Wolfe}, \emph{How to Write a PhD Thesis}, 1996, \url{http://www.phys.unsw.edu.au/~jw/thesis.html}}
-In case they provide an important thought for your work, it is advisable to put a copy of them in the appendix after having obtained the authorisation of their author.
+www
 
-\section{Previous Proposal 1}
+\section{Gossip Protocol}
 
-Presentation and analysis of previous work related to your topic.
+\textit{Gossip-based broadcast algorithms, a familiy of probabilistic broadcast algorithms, trade reliability guarantees against "scalability" properties}\footnote{Lightwight Probabilistic Broadcast - P. TH. EUGSTER, R. GUERRAOUI, S.B. HANDURUKANDE and P. KOUZNETSOV}.
+
+As the name suggests, gossip algorithms are asynchronous protocols that build upon how rumors spread in a population.
+
+Consider a network of $n$ nodes denoted by $V={1,...,n}$. Let $E \subset V \times V$ denote the bidirectional links along which node pairs can communicate and let this network graph be denoted by $G = (V,E)$ where $G$ constantly changes in terms of $V$ and $E$.
 
 \section{Previous Proposal 2}
 
