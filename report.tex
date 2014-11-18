@@ -1,4 +1,4 @@
-\documentclass[11pt, english]{report-rd-info}
+\documentclass[11pt, english, a4paper]{report-rd-info}
    % - 12pt:  can be preferable to read the report on small screens, ask your supervisors
    % - screen:  to be removed in order to obtain a classical report
 \usepackage[latin1]{inputenc}
@@ -10,6 +10,7 @@
 \usepackage{amsmath, amssymb}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{color}
 
 \begin{document}
 
@@ -81,22 +82,32 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 
 \chapter{Introduction}
 
-Distributed collaborative editors like Google Docs, Etherpad or Microsoft Word Online enable users to work together on Documents not being hindered by space, time or organization. Every user of an collaborative system has the opportunity to write, edit or remove text, changes made to the document will reflect almost immediately to all other users who work on the same Document.
+Distributed collaborative editors like Google Docs, Etherpad or Microsoft Word Online enable users to work together on documents not being hindered by space, time or organization. Every user of an collaborative system has the opportunity to write, edit or remove text, changes made to the document will reflect almost immediately to all other users who work on the same document.
 Users can also work on multiple documents at the same time, interacting with different groups of people.
+
 Internally every user holds a local copy of the document and broadcasts changes made to it while integrating changes made from remote users. Almost all current solutions utilize a Client-Server-Infrastructure with the Server being the final decision instance in case of a conflict.
-The centralization presents certain problems: The Server is a Single Point of Failure and introduces privacy and economic intelligence issues as well as limitations in terms of service and scalability. A possible solution to this problems is the full decentralization of the system - local replicas can be synchronized through a Conflict-free Replicated Data Type (CRDT) which provide an eventual consistency without the need of an authority Server. Users are not connected in a star-network as imposed by the Server-Client-Architecture but are connected through a peer-to-peer based gossip protocol. We will call a user connected to a gossip protocol and working on one or more documents a process.
-A gossip protocol has the advantage of being highly resilent and scalable at the same time. A message is broadcast to $\mathit{c}$ (also called FANOUT) randomly selected processes from the network. Likewise, the receiving processes broadcasts the message to $\mathit{c}$ randomly selected processes and so forth.
+
+The centralization presents certain problems: The Server is a Single Point of Failure and introduces privacy and economic intelligence issues as well as limitations in terms of service and scalability. A possible solution to this problems is the full decentralization of the system - local replicas can be synchronized through a Conflict-free Replicated Data Type (CRDT - Commutative Replicated Data Type) which provide an eventual consistency without the need of an authority Server. Users are not connected in a star-network as imposed by the Server-Client-Architecture but are connected through a peer-to-peer based gossip protocol. We will call a user connected to a gossip protocol and working on one or more documents a process.
+
+A gossip protocol has the advantage of being highly resilent and scalable at the same time. A message is broadcast to $\mathit{c}$ (also called FANOUT) randomly selected processes from the network. Likewise, the receiving processes broadcast the message to $\mathit{c}$ randomly selected processes and so forth.
+Message buffers and causality tracking ensure synchronicity between all peers.
 
 \section{Statement of the problem}
 
-Assuming that all processes are connected to one peer-to-peer network and that a very high number of $\mathit{n}$  processes will work on a moderate to high number of $\mathit{m}$ Documents ($n \geq m$) we will run into 
+Assuming a high number of $n$ processes that work on a moderate to high number of $m$  documents and that all processes are connected to one network to enjoy the advantages of a gossip protocol (resilent, healing abilitiy).
+
+Assuming processes $p_1, ..., p_\frac{n}{m}$ work together on document $d_1$ under a fully randomized gossip protocol.
+
+If $p_1$ wants to broadcast a message to all processes related to document $d_1$ we expect $(n-1)H_\frac{n}{m}$ messages to be gossiped until $p_2$ to $p_\frac{n}{m}$ are notfied (\emph{\color{red} is that assumption right or is it BS??}).
+
+Assuming that all processes are connected to one peer-to-peer network and that a very high number of $\mathit{n}$  processes will work on a moderate to high number of $\mathit{m}$ Documents ($n \geq m$) we will run into  
 \section{Objectives}
 
 P2P
 
 \section{Work achieved}
 
-By describing a clear objective, you can draw a clear line of work, may be with probability of failures and successes, that can help you determine, at each step, if a goal is still attainable, if a degraded solution has to be pursued, if a new line of development is mandatory, etc.
+Achived goals of this work are the prototypal implementation of the T-Man-Algorithm for a Website using WebRTC as peer-to-peer technology.
 
 This part will be updated during the course of the work.
 
