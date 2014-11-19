@@ -119,7 +119,7 @@ Never let the reader wait till the end of the report in order to know the result
 The rest of this report is structured as follows:
 
 \begin{itemize}
-    \item{\textbf{Chapter~\ref{chap:StateOfTheArt}} studies related proposals of the scientific literature addressing topics such as gossip protocols, exisiting membership protocols and CRDTs.}
+    \item{\textbf{Chapter~\ref{chap:StateOfTheArt}} studies related proposals of the scientific literature addressing topics such as gossip and membership protocols.}
     \item{\textbf{Chapter~\ref{chap:Proposals}} describes the profile and ranking function for the T-Man Algorithm to build the \textit{target topology}.}
     \item{\textbf{Chapter~\ref{chap:Experiments}} follows a development, experiment, and analysis path in order to quantify the theoretical results.}
     \item{Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.}
@@ -161,38 +161,57 @@ Usually, one can distinguish between two types of epidemic dissemination of mess
     \item \textbf{Anti-entropy:} A node periodically queries one random other node to check for message it has not received yet.
 \end{itemize}
 
+For scalability reasons a node $i$ cannot know all available other nodes in $V$ as this might exhaust its memory and because maintaining the list in presence of churn would be too expansive - for this reason nodes will see only a subset of processes, which we will call \textbf{partial view}.
 
-\section{Previous Proposal 2}
+\section{Peer Sampling Service}
 
-Etc.
+The peer sampling service \footnote{The Peer Sampling Service: Experimental Evaluation of Unstructured Gossip-Based Implementations - M. JELASITY, R. GUERRAOUI, A.-M. KERMARREC and M. VAN STEEN}  is a gossip-based membership dissemination protocol - it allows processes to get a subset of the whole network $V$ executing the protocol. 
+It consists of a very simple API:
+
+\begin{itemize}
+    \item{\textbf{init:}} Initializes the service on a given node if this has not been done before. This is implementation dependent.
+    \item{\textbf{getPeer:}} Returns a peer address if the network contains more than one node. The returned address is a sample drawn from the group. This method can also be used to return multiple random peers, either by providing a paramter $n$ to the function or by simply calling the method multiple times.
+\end{itemize}
+
+The serivce periodically communicates with its peers to generate new samples and to adapt to churn - this creates a small network overhead.
+
+\section{T-MAN}
+
+T-MAN is a protocol for topology management in a gossip network. It uses a single ranking function $R$ that all nodes can apply to order any subset of potential neighbors. Processes use a profile for applying said function. The desired topology is reached when all peers are connected to their closest neigbors according to their profile and the ranking function.
+With T-MAN, the current topology gradually evolves into the desired one while only using local gossip messages. 
+
+Another important property of T-MAN is the tendency to create clusters if the ranking function does not provide some sort of anti-clustering heuristic.
 
 \section{Synthesis}
 
-\begin{table*} % Use the starred version if the table is too large for a two-column document (screen version)
-    \begin{center}
-        \begin{tabular}{c|ccccc}
-                         & Proposal 1 & \ldots & Proposal $i$ & \ldots & Proposal $n$ \\
-            \hline
-            Criteria $1$ & $\surd$    &        &              &        & $\surd$      \\
-            \ldots       & \ldots     & \ldots & \ldots       & \ldots & \ldots       \\
-            Criteria $j$ & $\approx$  &        &              &        &              \\
-            \ldots       & \ldots     & \ldots & \ldots       & \ldots & \ldots       \\
-            Criteria $m$ &            &        & $\surd$      &        &              \\
-        \end{tabular}
-    \end{center}
-    \caption{Comparison of various proposals}
-    \label{tab:ProposalsComparison}
-\end{table*}
+%\begin{table*} % Use the starred version if the table is too large for a two-column document (screen version)
+%    \begin{center}
+%        \begin{tabular}{c|ccccc}
+%                         & Proposal 1 & \ldots & Proposal $i$ & \ldots & Proposal $n$ \\
+%            \hline
+%            Criteria $1$ & $\surd$    &        &              &        & $\surd$      \\
+%            \ldots       & \ldots     & \ldots & \ldots       & \ldots & \ldots       \\
+%            Criteria $j$ & $\approx$  &        &              &        &              \\
+%            \ldots       & \ldots     & \ldots & \ldots       & \ldots & \ldots       \\
+%            Criteria $m$ &            &        & $\surd$      &        &              \\
+%        \end{tabular}
+%    \end{center}
+%    \caption{Comparison of various proposals}
+%    \label{tab:ProposalsComparison}
+%\end{table*}
 
-A clear view of the advantages and disadvantages of the partial solutions found in the literature can be summarised by one or several tables (cf.\ table~\ref{tab:ProposalsComparison}) where a number of important criteria have been introduced and described.
+Given the problem of multiple documents $m$ in a network of $n$ processes the peer sampling service alone will result in a high delay of message delivery and an overloaded network (see \ref{sec:Statement of the problem}) which scales poorly.
 
-Note that all figures, tables, and algorithms must be put into their corresponding floating environments, captioned, referenced from the main text, and sourced if they have been copied from previous work.
+As mentioned above, T-MAN might evovle a random topology into a clustered network, depending on the chosen ranking function $R$. We will exploit this property to cluster together processes that work on the same document - now, with a structured overlay topology and interested nodes being close to each other we expect a huge improvement in message delivery speed (to relevant nodes).
+This solution will work well when all documents are modified by a distinct set of nodes but as soon as certain nodes work on multiple documents we will run into the problem of how to cluster the resulting network.
+
+Last but not least we must cover the unnecessary redundancy of messages that are send to processes which are not interested in the message.
+
 
 \section{Conclusion}
 
-By the end of this bibliographic work, some previous proposals can give explanations about the difficulty of the task, some others hints for further promising investigations, some even for avoiding dead-ends.
-
-The promising directions and the motivations for following them can then be listed before going to the detailed descriptions of the proposed new solutions in the following chapter(s).
+We must find a ranking function $R$ that somehow reflects nodes working on multiple documents for finding an appropriate network topology. 
+As we have approximate knowledge of the topology we can guess if a message is located in an area of the network that is relevant or not. A heuristic must ensure that a message does not scatter too far into the network where it is not relevant anymore.
 
 %--------------------------------------------------------------------------------
 
