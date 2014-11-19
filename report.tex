@@ -136,16 +136,31 @@ The rest of this report is structured as follows:
 \label{chap:StateOfTheArt}
 
 This chapter introduces fundamental algorithms and concepts. 
-\footnote{For instance, the ``reference'' \cite{Wolfe} should really be located here: Joe  \textsc{Wolfe}, \emph{How to Write a PhD Thesis}, 1996, \url{http://www.phys.unsw.edu.au/~jw/thesis.html}}
-www
 
 \section{Gossip Protocol}
 
 \textit{Gossip-based broadcast algorithms, a familiy of probabilistic broadcast algorithms, trade reliability guarantees against "scalability" properties}\footnote{Lightwight Probabilistic Broadcast - P. TH. EUGSTER, R. GUERRAOUI, S.B. HANDURUKANDE and P. KOUZNETSOV}.
 
-As the name suggests, gossip algorithms are asynchronous protocols that build upon how rumors spread in a population.
+As the name suggests, gossip, or epidemic, algorithms are asynchronous protocols that build upon how rumors, or diseases, spread in a population.
 
-Consider a network of $n$ nodes denoted by $V={1,...,n}$. Let $E \subset V \times V$ denote the bidirectional links along which node pairs can communicate and let this network graph be denoted by $G = (V,E)$ where $G$ constantly changes in terms of $V$ and $E$.
+Consider a network of $n$ nodes denoted by $V=\{1,...,n\}$. Let $E \subset V \times V$ denote the bidirectional links along which node pairs can communicate, let this network graph be denoted by $G = (V,E)$ where $G$ constantly changes in terms of $V$ and $E$ and let $d_i$ denote the degree of node $i$ in $G$.
+\footnote{Gossip Algorithms - Devavrat SHAH - \emph{\color{red}Is this a correct citation??? IMPORTANT}}
+
+If a node $i$ wants to broadcast a message it selects $c$ random nodes from $V\setminus\{i\}$ to which it will send the message - receiving nodes will send it to another $c$ randomly selected nodes and so forth.
+On receiving a message a second time a node discards a message - the problem of detecting this is out of the scope of this report, it has been addressed in \emph{\color{red}Find a relevant paper!!}. 
+
+For configurating the protocol there are two important parameters:
+\begin{itemize}
+    \item \textbf{Fanout:} denoted as $c$ in the description above. Defines the number of nodes that a message is broadcasted to  by one node. A high fanout value results in higher redundant network traffic but also guarantees a higher fault tolerance.
+    \item \textbf{TTL:} Number of hopes a message will take until it will be discared.
+\end{itemize}
+
+Usually, one can distinguish between two types of epidemic dissemination of messages:\footnote{Epidemic Algorithms for Replicated Database Maintenance - A. DEMERS, M. GEALY, D. GREENE, C. HAUSER, W. IRISH, J. LARSON, S. MANNING, S. SHENKER, H. STURGIS, D. SWINEHART, D. TERRY, and D. WOODS}
+\begin{itemize}
+    \item \textbf{Rumor mongering:} (reactive) When receiving a message, a node sends it to all other nodes in its view.
+    \item \textbf{Anti-entropy:} A node periodically queries one random other node to check for message it has not received yet.
+\end{itemize}
+
 
 \section{Previous Proposal 2}
 
