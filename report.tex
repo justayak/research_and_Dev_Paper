@@ -1,4 +1,4 @@
-\documentclass[11pt, english, a4paper]{report-rd-info}
+\documentclass[11pt, english, a4paper, screen]{report-rd-info}
    % - 12pt:  can be preferable to read the report on small screens, ask your supervisors
    % - screen:  to be removed in order to obtain a classical report
 \usepackage[latin1]{inputenc}
@@ -14,7 +14,7 @@
 
 \begin{document}
 
-\title{A Scalable Network Topology for Massive Collaborative Editing}
+\title{Evaluating Gossip Protocols in inhomogenes Networks}
 \subtitle{A Model and Short Guide}
 
 \authorA{Julian}{Tanke}
@@ -82,41 +82,15 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 
 \chapter{Introduction}
 
-Distributed collaborative editors like Google Docs, Etherpad or Microsoft Word Online enable users to work together on documents not being hindered by space, time or organization. Every user of an collaborative system has the opportunity to write, edit or remove text, changes made to the document will reflect almost immediately to all other users who work on the same document.
-Users can also work on multiple documents at the same time, interacting with different groups of people.
+Gossip-based protocols have been applied to a various number of large scale systems serving an array of problem-settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
+Gossip algorithms, also called epidemic algorithms, present a simple, scalable and robust way of disseminate information in large-scale networks \cite{Demers:1987:EAR:41840.41841}.
 
-Internally every user holds a local copy of the document and broadcasts changes made to it while integrating changes made from remote users. Almost all current solutions utilize a Client-Server-Infrastructure with the Server being the final decision instance in case of a conflict.
+Many algorithms assume a homogenes network where addressing other peers is simple and relativly fast (\footnote{\color{red} I probably do need to reference this 'asumption'?}).
+This property, however, does not stay true in complex, inhomogenes networks that are split up into multiple sub networks like the internet. 
+Devices are usually hidden behind network address translation (NAT) where they are not directly accessible by devices from another subnet - a signaling service is needed.
+This drastically increases the complexity of establishing connections between peers.
 
-The centralization presents certain problems: The Server is a Single Point of Failure and introduces privacy and economic intelligence issues as well as limitations in terms of service and scalability. A possible solution to this problems is the full decentralization of the system - local replicas can be synchronized through a Conflict-free Replicated Data Type (CRDT - Commutative Replicated Data Type) which provide an eventual consistency without the need of an authority Server. Users are not connected in a star-network as imposed by the Server-Client-Architecture but are connected through a peer-to-peer based gossip protocol. We will call a user connected to a gossip protocol and working on one or more documents a process.
-
-A gossip protocol has the advantage of being highly resilent and scalable at the same time. A message is broadcast to $\mathit{c}$ (also called FANOUT) randomly selected processes from the network. Likewise, the receiving processes broadcast the message to $\mathit{c}$ randomly selected processes and so forth.
-Message buffers and causality tracking ensure synchronicity between all peers.
-
-\section{Statement of the problem}
-
-Assuming a high number of $n$ processes that work on a moderate to high number of $m$  documents - all processes are connected to one ranomized gossip network to enjoy the advantages of a gossip protocol (resilent, healing ability).
-Suppose processes $p_1, ..., p_\frac{n}{m}$ work together on document $d_1$:
-
-If $p_1$ wants to broadcast a message to all processes related to document $d_1$ we expect $(n-1)\pmb{H}_\frac{n}{m}$ messages to be gossiped until $p_2$ to $p_\frac{n}{m}$ are notfied (\emph{\color{red} is that assumption right or is it BS??}) - in a big network this will result in a high delay of document synchronisation between processes, furthermore it will generate a vast amount of unnecessary message sending as most of the processes are not interested in changes made to documents they are not working on.
-
-\section{Objectives}
-
-Objective of this paper is to present an algorithm to construct a network topology that incorporates the logical structure between processes that is laid out by documents and, furthermore, ensure that messages create a minimum of unnecessary noise - this topology will be called \textit{target topology}.
-
-
-\section{Work achieved}
-
-Achived goals of this work are the prototypal implementation of the T-Man-Algorithm for a Website using WebRTC as peer-to-peer technology.
-
-This part will be updated during the course of the work.
-
-\section{Contribution}
-
-Never let the reader wait till the end of the report in order to know the results, positive as well as negative ones, of your work.  Results are presented in the introduction, not the conclusion!
-
-\section{Report organisation}
-
-The rest of this report is structured as follows:
+A possible application could be a serverless massive collaborative editor \cite{nedelec:hal-00921633} in a web browser. A peer-to-peer connection can be established using WebRTC, a recent technology that enables multimedia and data sharing between browser clients - however, the difficulties regarding establishing connections must be addressed. 
 
 \begin{itemize}
     \item{\textbf{Chapter~\ref{chap:StateOfTheArt}} studies related proposals of the scientific literature addressing topics such as gossip and membership protocols.}
@@ -351,9 +325,7 @@ It is quite rare that a given work totally closes a topic!  Even in that case, i
 
 %--------------------------------------------------------------------------------
 
-\nocite{*} % to be removed, actual citations in the report must be necessary and sufficient (this is just to create a fake bibliography in the model)
-
-\bibliography{rapport}
+\bibliography{report}
 
 \listoffigures{}
 
@@ -908,16 +880,16 @@ This allows to evaluation your own level of satisfcation at the end of the first
 
 You can discuss in some details these various points.
 
-\begin{figure*}
-   \centering
-      \ifscreen % macro TeX (issue de la classe report-rd-info.cls) permettant d'ajuster le contenu en fonction du l'orientation du document (<< screen >> ou pas)
-         \rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD1}}
-      \else
-         \includegraphics[width=0.9\textwidth]{Images/Grille-Evaluation-PRD1}
-      \fi
-   \caption{Points à contrôler à l'issue de la phase I}
-   \label{fig:IntermediateAutoEvaluation}
-\end{figure*}
+%\begin{figure*}
+   %\centering
+      %\ifscreen % macro TeX (issue de la classe report-rd-info.cls) permettant d'ajuster le contenu en fonction du l'orientation du document (<< screen >> ou pas)
+         %\rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD1}}
+      %\else
+         %\includegraphics[width=0.9\textwidth]{Images/Grille-Evaluation-PRD1}
+      %\fi
+ %  \caption{Points à contrôler à l'issue de la phase I}
+ %  \label{fig:IntermediateAutoEvaluation}
+%\end{figure*}
 
 Figure~\ref{fig:FinalAutoEvaluation} provides the same kind of evaluation for the second part of the project, i.e.:
 \begin{enumerate}
@@ -926,15 +898,15 @@ Figure~\ref{fig:FinalAutoEvaluation} provides the same kind of evaluation for th
    \item receipt.
 \end{enumerate}
 
-\begin{figure*}
-   \centering
-      \ifscreen
-         \rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD2}}
-      \else
-         \includegraphics[width=0.9\textwidth]{Images/Grille-Evaluation-PRD2}
-      \fi
-   \caption{Points à contrôler à l'issue de la phase II}
-   \label{fig:FinalAutoEvaluation}
-\end{figure*}
+%\begin{figure*}
+%   \centering
+%      \ifscreen
+%         \rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD2}}
+%      \else
+%         \includegraphics[width=0.9\textwidth]{Images/Grille-Evaluation-PRD2}
+%      \fi
+%   \caption{Points à contrôler à l'issue de la phase II}
+%   \label{fig:FinalAutoEvaluation}
+%\end{figure*}
 
 \end{document}
