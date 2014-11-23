@@ -14,7 +14,7 @@
 
 \begin{document}
 
-\title{Evaluating Gossip Protocols in inhomogenes Networks}
+\title{Evaluating Gossip Protocols in Wide Area Networks}
 \subtitle{A Model and Short Guide}
 
 \authorA{Julian}{Tanke}
@@ -82,15 +82,19 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 
 \chapter{Introduction}
 
-Gossip-based protocols have been applied to a various number of large scale systems serving an array of problem-settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
-Gossip algorithms, also called epidemic algorithms, present a simple, scalable and robust way of disseminate information in large-scale networks \cite{Demers:1987:EAR:41840.41841}.
+Gossip-based protocols have been applied to a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
+Gossip algorithms, also called epidemic algorithms, present a simple, scalable and robust way of disseminate information in large-scale networks \cite{Demers:1987:EAR:41840.41841}, even if nodes regularly join and leave.
 
-Many algorithms assume a homogenes network where addressing other peers is simple and relativly fast (\footnote{\color{red} I probably do need to reference this 'asumption'?}).
-This property, however, does not stay true in complex, inhomogenes networks that are split up into multiple sub networks like the internet. 
+Many algorithms work well in local area networks where addressing other peers is simple and relativly fast (\footnote{\color{red} I probably do need to reference this 'asumption'?}).
+In practice, however, peers are often members in extended networks (WAN) where they are scattered over multiple local networks - one example would be the internet. 
 Devices are usually hidden behind network address translation (NAT) where they are not directly accessible by devices from another subnet - a signaling service is needed.
 This drastically increases the complexity of establishing connections between peers.
 
-A possible application could be a serverless massive collaborative editor \cite{nedelec:hal-00921633} in a web browser. A peer-to-peer connection can be established using WebRTC, a recent technology that enables multimedia and data sharing between browser clients - however, the difficulties regarding establishing connections must be addressed. 
+A possible application for gossip protocols in a wide area network could be a serverless massive collaborative editor \cite{nedelec:hal-00921633} in a web browser.
+A gossip-based peer-to-peer network would scale better than a traditional server-client-architecture like Google Docs (which only allows 50 users to work on one document) or Microsoft Word Online.
+A peer-to-peer connection can be established using WebRTC\cite{webrtc}, a recent web technology that enables multimedia and data sharing between browser clients - however, the difficulties regarding establishing connections must be addressed. 
+
+The contribution of this report is the examination of various important gossip protocols run in a wide area network.
 
 \begin{itemize}
     \item{\textbf{Chapter~\ref{chap:StateOfTheArt}} studies related proposals of the scientific literature addressing topics such as gossip and membership protocols.}
