@@ -1,4 +1,4 @@
-\documentclass[11pt, english, a4paper, screen]{report-rd-info}
+\documentclass[11pt, english, a4paper]{report-rd-info}
    % - 12pt:  can be preferable to read the report on small screens, ask your supervisors
    % - screen:  to be removed in order to obtain a classical report
 \usepackage[latin1]{inputenc}
@@ -14,7 +14,7 @@
 
 \begin{document}
 
-\title{Evaluating Gossip Protocols in Wide Area Networks}
+\title{Gossip Protocols in Wide Area Networks}
 \subtitle{A Model and Short Guide}
 
 \authorA{Julian}{Tanke}
@@ -85,8 +85,9 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 Gossip-based protocols have been applied to a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
 Gossip algorithms, also called epidemic algorithms, present a simple, scalable and robust way of disseminate information in large-scale networks \cite{Demers:1987:EAR:41840.41841}, even if nodes regularly join and leave.
 
-Many algorithms work well in local area networks where addressing other peers is simple and relativly fast (\footnote{\color{red} I probably do need to reference this 'asumption'?}).
-In practice, however, peers are often members in extended networks (WAN) where they are scattered over multiple local networks - one example would be the internet. 
+Many of those algorithms rely on periodically exchanging information with random peers in the network to maintain a uniform distribution \cite{Karp00randomizedrumor} \cite{Jelasity:2004:PSS:1045658.1045666}.
+This works well in local area networks where addressing other peers is simple and relativly fast (\footnote{\color{red} I probably do need to reference this 'asumption'?}).
+In practice, however, peers are often members in extended networks (WAN) where they are scattered over multiple local networks without having a globally accessably address. 
 Devices are usually hidden behind network address translation (NAT) where they are not directly accessible by devices from another subnet - a signaling service is needed.
 This drastically increases the complexity of establishing connections between peers.
 
@@ -94,11 +95,19 @@ A possible application for gossip protocols in a wide area network could be a se
 A gossip-based peer-to-peer network would scale better than a traditional server-client-architecture like Google Docs (which only allows 50 users to work on one document) or Microsoft Word Online.
 A peer-to-peer connection can be established using WebRTC\cite{webrtc}, a recent web technology that enables multimedia and data sharing between browser clients - however, the difficulties regarding establishing connections must be addressed. 
 
-The contribution of this report is the examination of various important gossip protocols run in a wide area network.
+\section{Our Contributions}
+
+In this report we study how various gossip protocols behave when they are applied in a wide area network. 
+We will compare how their behaviour differs from their original implementations and elaborate necessary modifications so that these protocols work more efficiently and stable in an extended network with as few external services as possible. 
+We solve this by delegating the signaling service to the gossip protocol. Peers function as man-in-the-middle to hoist connections between their neigbors.
+
+\section{Report organisation}
+
+The rest of the report is structured as following:
 
 \begin{itemize}
-    \item{\textbf{Chapter~\ref{chap:StateOfTheArt}} studies related proposals of the scientific literature addressing topics such as gossip and membership protocols.}
-    \item{\textbf{Chapter~\ref{chap:Proposals}} describes the profile and ranking function for the T-Man Algorithm to build the \textit{target topology}.}
+    \item{\textbf{Chapter~\ref{chap:StateOfTheArt}} studies a number of gossip protocols and introduces the technology WebRTC. Further we will explain the differences of an extended network and a local area network assumed by this report.}
+    \item{\textbf{Chapter~\ref{chap:Proposals}} evaluates what gossip protocols are applicable with acceptable complexity and suggests changes to the algorithms to make them more robust. Furthermore we will study of how to introduce the signaling service into the algorithms. }
     \item{\textbf{Chapter~\ref{chap:Experiments}} follows a development, experiment, and analysis path in order to quantify the theoretical results.}
     \item{Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.}
 \end{itemize}
@@ -117,33 +126,35 @@ This chapter introduces fundamental algorithms and concepts.
 
 \section{Gossip Protocol}
 
-\textit{Gossip-based broadcast algorithms, a familiy of probabilistic broadcast algorithms, trade reliability guarantees against "scalability" properties}\footnote{Lightwight Probabilistic Broadcast - P. TH. EUGSTER, R. GUERRAOUI, S.B. HANDURUKANDE and P. KOUZNETSOV}.
+Gossip is a  communication protocol initially inspired by observing of how gossips spread in social networks or how diseases spread over a population.
+It trades reliability guarantees against scalability properties \cite{Eugster:2003:LPB:945506.945507} and it has been applied to various large scale systems, with the purpose of information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470}, network management \cite{conf/dsom/VoulgarisS03} and many more.
 
-As the name suggests, gossip, or epidemic, algorithms are asynchronous protocols that build upon how rumors, or diseases, spread in a population.
+The basic idea behind gossip works as follows:
+Consider a a network of $n$ nodes denoted by $V=\{1,...,n\}$.
+Let $E \subset V \times V$ denote neighboring\footnote{In this paper, nodes are considered neighbors if they are directly connected to each other} nodes, let this network graph be denoted by $G = (V,E)$ and let $d_i$ denote the degree of node $i$ in $G$ where 
+$d_i$ is constrained by the configuration parameter $c \in \mathbb{Z}_{>0}$ which is called Fanout.
+The Fanout defines the number of nodes that are selected when a message is broadcast from a node.
+A high value generates a lot of redundant messages while being more fault tolerant and reliable. 
+$V$ and $E$ constantly change as nodes leave and join the network and nodes update there neighbors to maintain a uniform distribution.
 
-Consider a network of $n$ nodes denoted by $V=\{1,...,n\}$. Let $E \subset V \times V$ denote the bidirectional links along which node pairs can communicate, let this network graph be denoted by $G = (V,E)$ where $G$ constantly changes in terms of $V$ and $E$ and let $d_i$ denote the degree of node $i$ in $G$.
-\footnote{Gossip Algorithms - Devavrat SHAH - \emph{\color{red}Is this a correct citation??? IMPORTANT}}
+Assuming a node $i$ wants to broadcast a message $m$ - It sends $m$ to its $d_i$ neighboring nodes. 
+A receiving node $j$ evaluates if it already knows $m$ - and if not, it will repeat the previous procedure: broadcast to its $d_j$ neighboring nodes and so forth. 
 
-If a node $i$ wants to broadcast a message it selects $c$ random nodes from $V\setminus\{i\}$ to which it will send the message - receiving nodes will send it to another $c$ randomly selected nodes and so forth.
-On receiving a message a second time a node discards a message - the problem of detecting this is out of the scope of this report, it has been addressed in \emph{\color{red}Find a relevant paper!!}. 
-
-For configurating the protocol there are two important parameters:
-\begin{itemize}
-    \item \textbf{Fanout:} denoted as $c$ in the description above. Defines the number of nodes that a message is broadcasted to  by one node. A high fanout value results in higher redundant network traffic but also guarantees a higher fault tolerance.
-    \item \textbf{TTL:} Number of hopes a message will take until it will be discared.
-\end{itemize}
-
-Usually, one can distinguish between two types of epidemic dissemination of messages:\footnote{Epidemic Algorithms for Replicated Database Maintenance - A. DEMERS, M. GEALY, D. GREENE, C. HAUSER, W. IRISH, J. LARSON, S. MANNING, S. SHENKER, H. STURGIS, D. SWINEHART, D. TERRY, and D. WOODS}
+Usually, one can distinguish between two types of epidemic dissemination of messages\cite{Demers:1987:EAR:41840.41841}:
 \begin{itemize}
     \item \textbf{Rumor mongering:} (reactive) When receiving a message, a node sends it to all other nodes in its view.
     \item \textbf{Anti-entropy:} A node periodically queries one random other node to check for message it has not received yet.
 \end{itemize}
 
+When $n$ is very large, for a given node $i$ it applies that $d_i << n$.
+This is necessary for scalability reasons as, otherwise, the list of neighbors might exhaust a nodes memory and maintaining the list in presence of churn would be too expansive.
+We will call $\mathcal{N}_i \equiv \{j\in V:(i,j)\in E\}$ the \textbf{partial view} of $i$.
+
 For scalability reasons a node $i$ cannot know all available other nodes in $V$ as this might exhaust its memory and because maintaining the list in presence of churn would be too expansive - for this reason nodes will see only a subset of processes, which we will call \textbf{partial view}.
 
 \section{Peer Sampling Service}
 
-The peer sampling service \footnote{The Peer Sampling Service: Experimental Evaluation of Unstructured Gossip-Based Implementations - M. JELASITY, R. GUERRAOUI, A.-M. KERMARREC and M. VAN STEEN}  is a gossip-based membership dissemination protocol - it allows processes to get a subset of the whole network $V$ executing the protocol. 
+The peer sampling service \cite{Jelasity:2004:PSS:1045658.1045666}, or, random peer sampling (RPS), is a service that allows nodes in a gossip protocol to get a subset of the whole network $V$.
 It consists of a very simple API:
 
 \begin{itemize}
@@ -151,7 +162,12 @@ It consists of a very simple API:
     \item{\textbf{getPeer:}} Returns a peer address if the network contains more than one node. The returned address is a sample drawn from the group. This method can also be used to return multiple random peers, either by providing a paramter $n$ to the function or by simply calling the method multiple times.
 \end{itemize}
 
-The serivce periodically communicates with its peers to generate new samples and to adapt to churn - this creates a small network overhead.
+The service periodically communicates with its peers to generate new samples and to adapt to churn - this creates a small network overhead and includes connection to other peers frequently.
+This will be expansive in a wide area network.
+
+
+
+RPS can be used in a variety of gossip-based protocols, for example in topology management \cite{Jelasity:2009:TGF:1570533.1570626}. 
 
 \section{T-MAN}
 
