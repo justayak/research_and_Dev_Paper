@@ -155,6 +155,7 @@ For scalability reasons a node $i$ cannot know all available other nodes in $V$ 
 \section{Peer Sampling Service}
 
 The peer sampling service \cite{Jelasity:2004:PSS:1045658.1045666}, or, random peer sampling (RPS), is a service that allows nodes in a gossip protocol to get a subset of the whole network $V$.
+RPS can be used in a variety of gossip-based protocols, for example in topology management \cite{Jelasity:2009:TGF:1570533.1570626}. 
 It consists of a very simple API:
 
 \begin{itemize}
@@ -162,19 +163,36 @@ It consists of a very simple API:
     \item{\textbf{getPeer:}} Returns a peer address if the network contains more than one node. The returned address is a sample drawn from the group. This method can also be used to return multiple random peers, either by providing a paramter $n$ to the function or by simply calling the method multiple times.
 \end{itemize}
 
-The service periodically communicates with its peers to generate new samples and to adapt to churn - this creates a small network overhead and includes connection to other peers frequently.
-This will be expansive in a wide area network.
+There are two strategies to maintain partial views in peer sampling services \cite{Leitao_gossip-basedbroadcast} that will play an important role in our evaluation:
 
+\begin{itemize}
+    \item{\textbf{Reactive:} The partial view only changes when $V$ changes (Nodes join or leave) and remains stable otherwise.
+An example algorithm is SCAMP \cite{Ganesh:2001:SPL:648089.747488}.}
+    \item{\textbf{Cyclic:} The partial view is periodically updated every $\bigtriangleup T$ time units and membership information are exchanged with neighbors.
+An example algorithm is Cyclon \cite{Voulgaris05cyclon:inexpensive}.}
+\end{itemize}
 
+\section{SCAMP}
 
-RPS can be used in a variety of gossip-based protocols, for example in topology management \cite{Jelasity:2009:TGF:1570533.1570626}. 
+The probabilistic scalable membership protocol (SCAMP)\cite{Ganesh:2001:SPL:648089.747488} is a reactive peer sampling service.
+The size of its local views adapt automatically to a desired value of $(c+1)\log{n}$ where $c$ is a  parameter which specifies the degree of robustness to failure(\cite{Kermarrec:2003:PRD:766617.766623}, \emph{Theorem 1}).
+It maintains two separated partial views\cite{Ganesh:2003:PMM:642778.642782}, one for receiving gossip messages (InView) one for sending gossip messages (PartialView).
 
-\section{T-MAN}
+If a new node $k$ wants to join the network $G(V,E)$ it needs to have one member $i \in V$ in its $PartialView_k$ and send a subscription request to $i$.
+On receiving a subscription request, $i$ forwards the new peer to all members of its own $PartialView_i$, and, additianally, creates $c$ copies of the new subscription and forwards them to randomly chosen nodes in $PartialView_i$.
 
-T-MAN is a protocol for topology management in a gossip network. It uses a single ranking function $R$ that all nodes can apply to order any subset of potential neighbors. Processes use a profile for applying said function. The desired topology is reached when all peers are connected to their closest neigbors according to their profile and the ranking function.
-With T-MAN, the current topology gradually evolves into the desired one while only using local gossip messages. 
+On receiving a fowarded subscription for node $k$, a receiving node $j$ integrates $k$ into its $PartialView_j$ with probability $p$ which depends on the size of $PartialView_j$ ($p=\frac{1}{1+|PartialView|}$). 
+If $j$ does not integrate $k$, it forwards it to another randomly chosen peer from its $PartialView_j$.
 
-Another important property of T-MAN is the tendency to create clusters if the ranking function does not provide some sort of anti-clustering heuristic.
+When a node $i$ decides to keep the subscription of a node $j$, it integrates $j$ into its $PartialView_i$ and notifies $j$ to put $i$ into its $InView_j$.
+
+On leaving the network, the leaving node $j$ sends a \emph{replace request} containing a peer from its $PartialView_j$ to $|InView_j|-c$ peers in its $InView_j$ and a \emph{deleting request} to the remaining ones.
+When a node $i$ receives the \emph{replace request} from $j$, it will replace $j$ for the sent peer in its $PartialView_i$.
+
+A subscription has a finite lifetime called \emph{lease}\footnote{The lease is implementation dependend: it could be set individually or it could be set globally}.
+When expired, the subscribed node will be removed from all PartialViews.
+It is a nodes responsibility to resubscribe once its subscription expires.
+This mechanic ensures that failed nodes will not remain in the network.
 
 \section{Synthesis}
 
