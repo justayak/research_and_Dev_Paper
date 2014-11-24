@@ -15,7 +15,7 @@
 
 \begin{document}
 
-\title{Gossip Protocols in Wide Area Networks}
+\title{A Robust Peer-To-Peer Gossiping Protocol for Extended Networks}
 \subtitle{A Model and Short Guide}
 
 \authorA{Julian}{Tanke}
@@ -173,6 +173,28 @@ An example algorithm is SCAMP \cite{Ganesh:2001:SPL:648089.747488}.}
 An example algorithm is CYCLON \cite{Voulgaris05cyclon:inexpensive}.}
 \end{itemize}
 
+\section{Newscast}
+
+The newscast protocol \cite{Voulgaris03arobust}\cite{Jelasity02large-scalenewscast} serves for information dissemination and as memebership management protocol, where joinging and leaving the network is very cheap.
+If a node wants to join the system it only needs to know the address of an arbitrary member, for leaving the network no action is necessary.
+
+Abstractly it works by employing a group of nodes called \emph{collective of agents} and a \emph{news agency}.
+All agents must implement a simple API consisting of \textbf{getNews()} and \textbf{newsUpdate(news)}.
+For the protocol, all agents are passive and are queried by the news agency.
+\textbf{getNews} is called regularly by the agency to obtain any news. 
+Additional to that, the news agency provides the whole collective with news by calling \textbf{updateNews}.
+The news agency can be implemented in a fully distributed fashion by running an associated \emph{correspondent} that runs on the same machine as the agent \cite{Voulgaris03arobust}.
+
+Each correspondent has a news cache of size $c$ where the news optained from the agent are timestamped and stored.
+
+Every $\bigtriangleup T$ (\textit{refresh interval}) time the correspondents exchange their caches applying the following steps\footnote{as described in \cite{Voulgaris03arobust} Section 2.1}:
+
+\begin{enumerate}
+    \item{qq}
+    \item{ww}
+\end{enumerate}
+
+
 \section{SCAMP}
 
 The probabilistic scalable membership protocol (SCAMP)\cite{Ganesh:2001:SPL:648089.747488} is a reactive peer sampling service.
@@ -263,6 +285,8 @@ TBD
 
 \chapter{Proposals}
 \label{chap:Proposals}
+
+Massiv colab \cite{MassCollab}
 
 Introduce the various ideas and proposals. As for the state-of-the-art, if this chapter is too long, split it into different chapters.
 
