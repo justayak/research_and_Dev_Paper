@@ -15,7 +15,7 @@
 
 \begin{document}
 
-\title{A Robust Peer-To-Peer Gossiping Protocol for Extended Networks}
+\title{A Robust Peer-To-Peer Gossiping Protocol in Routed Networks}
 \subtitle{A Model and Short Guide}
 
 \authorA{Julian}{Tanke}
@@ -83,7 +83,34 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 
 \chapter{Introduction}
 
-Gossip-based protocols have been applied to a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
+% 1:Motivation - why interesting and important for larger community?
+
+Gossip-based peer-to-peer protocols have been applied to a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
+Control is distributed symmetrically, peers are highly autonomous and independent, which allows the algorithms to be simple compared to hierarchical approaches.
+This protocols can easily scale to millions of peers which can join and leave without significantly disrupting the service.
+
+Today, many services use the internet as transport agent.
+Its infrastructure consists of countless networks which are interconnected by routers.
+This introduces a connection establishment problem when a peer-to-peer network is build up from a set of end user devices\footnote{In this context we define an end user device as a personal computer or a consumer device (e.g. a PDA or a smart phone)}.
+
+
+% 2:What is the specific problem? and background
+www
+
+% 3:summarize main contributions. What is the general approach taken? Why significant? MUST BE GOOD!
+
+In this report, we show that ...
+
+% 4:High level: what are the differences to what others have done. Reader must know whats new about this work
+% to compare to other work in the area
+
+err
+
+% 5:structure
+
+The remainder of this paper is structured as follows: 
+
+%OLD
 Gossip algorithms, also called epidemic algorithms, present a simple, scalable and robust way of disseminate information in large-scale networks \cite{Demers:1987:EAR:41840.41841}, even if nodes regularly join and leave.
 
 Many of those algorithms rely on periodically exchanging information with random peers in the network to maintain a uniform distribution \cite{Karp00randomizedrumor} \cite{Jelasity:2004:PSS:1045658.1045666}.
@@ -92,18 +119,12 @@ In practice, however, peers are often members in extended networks (WAN) where t
 Devices are usually hidden behind network address translation (NAT) where they are not directly accessible by devices from another subnet - a signaling service is needed.
 This drastically increases the complexity of establishing connections between peers.
 
-A possible application for gossip protocols in a wide area network could be a serverless massive collaborative editor \cite{nedelec:hal-00921633} in a web browser.
-A gossip-based peer-to-peer network would scale better than a traditional server-client-architecture like Google Docs (which only allows 50 users to work on one document) or Microsoft Word Online.
-A peer-to-peer connection can be established using WebRTC\cite{webrtc}, a recent web technology that enables multimedia and data sharing between browser clients - however, the difficulties regarding establishing connections must be addressed. 
-
-\section{Our Contributions}
-
+%contrib
 In this report we study how various gossip protocols behave when they are applied in a wide area network. 
 We will compare how their behaviour differs from their original implementations and elaborate necessary modifications so that these protocols work more efficiently and stable in an extended network with as few external services as possible. 
 We solve this by delegating the signaling service to the gossip protocol. Peers function as man-in-the-middle to hoist connections between their neigbors.
 
-\section{Report organisation}
-
+%struct
 The rest of the report is structured as following:
 
 \begin{itemize}
@@ -175,8 +196,8 @@ An example algorithm is CYCLON \cite{Voulgaris05cyclon:inexpensive}.}
 
 \section{Newscast}
 
-The newscast protocol \cite{Voulgaris03arobust}\cite{Jelasity02large-scalenewscast} serves for information dissemination and as memebership management protocol, where joinging and leaving the network is very cheap.
-If a node wants to join the system it only needs to know the address of an arbitrary member, for leaving the network no action is necessary.
+The newscast protocol \cite{Voulgaris03arobust}\cite{Jelasity02large-scalenewscast} serves for information dissemination and as memebership management protocol where joining and leaving the network is very cheap.
+If a node wants to join the system it only needs to know the address of an arbitrary member, for leaving the network no action is necessary, the node can simply stop communicating.
 
 Abstractly it works by employing a group of nodes called \emph{collective of agents} and a \emph{news agency}.
 All agents must implement a simple API consisting of \textbf{getNews()} and \textbf{newsUpdate(news)}.
@@ -190,10 +211,16 @@ Each correspondent has a news cache of size $c$ where the news optained from the
 Every $\bigtriangleup T$ (\textit{refresh interval}) time the correspondents exchange their caches applying the following steps\footnote{as described in \cite{Voulgaris03arobust} Section 2.1}:
 
 \begin{enumerate}
-    \item{qq}
-    \item{ww}
+    \item{Request a fresh news item from the local agent by calling \textbf{getNews}. Add the item to the cache.}
+    \item{Radomly select a peer correspondent by considering the netwok address of other (and available) correspondents as found in the cache.}
+    \item{Send all cache entries to the selected peer, and, in turn, receive all the peer's cache entries. Merge the received entries into the local cache.}
+    \item{Pass the received cache entries from the peer agent to the local agent by calling \textbf{newsUpdate}.}
+    \item{The correspondent now has $2c$ cache entries; it subsequently throws away the $c$ oldest ones.}
 \end{enumerate}
 
+The receiving correspondent executes the last three steps as well.
+
+Synoptical, each agents knows only a small, permanently changing set of peers of which one is chosen to exchange information.
 
 \section{SCAMP}
 
@@ -240,7 +267,7 @@ On receiving the shuffle request from $i$ at $j$, $j$ sends back a random subset
 When a node $i$ does not get a response from a node $j$ after it sent a shuffle request it will discard node $j$ from its partial view as it seems to be failed. 
 Because of this, failed nodes will be removed from the network in bounded time.
 
-As in SCAMP, if a node wants to join the network, it needs to know another node that is already part of it.
+As in SCAMP and newscast, if a node wants to join the network, it needs to know another node that is already part of it.
 
 \section{WebRTC}
 
@@ -287,6 +314,10 @@ TBD
 \label{chap:Proposals}
 
 Massiv colab \cite{MassCollab}
+
+A possible application for gossip protocols in a wide area network could be a serverless massive collaborative editor \cite{nedelec:hal-00921633} in a web browser.
+A gossip-based peer-to-peer network would scale better than a traditional server-client-architecture like Google Docs (which only allows 50 users to work on one document) or Microsoft Word Online.
+A peer-to-peer connection can be established using WebRTC\cite{webrtc}, a recent web technology that enables multimedia and data sharing between browser clients - however, the difficulties regarding establishing connections must be addressed. 
 
 Introduce the various ideas and proposals. As for the state-of-the-art, if this chapter is too long, split it into different chapters.
 
