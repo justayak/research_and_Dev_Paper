@@ -11,6 +11,7 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{color}
+\usepackage{graphicx}
 
 \begin{document}
 
@@ -169,7 +170,7 @@ There are two strategies to maintain partial views in peer sampling services \ci
     \item{\textbf{Reactive:} The partial view only changes when $V$ changes (Nodes join or leave) and remains stable otherwise.
 An example algorithm is SCAMP \cite{Ganesh:2001:SPL:648089.747488}.}
     \item{\textbf{Cyclic:} The partial view is periodically updated every $\bigtriangleup T$ time units and membership information are exchanged with neighbors.
-An example algorithm is Cyclon \cite{Voulgaris05cyclon:inexpensive}.}
+An example algorithm is CYCLON \cite{Voulgaris05cyclon:inexpensive}.}
 \end{itemize}
 
 \section{SCAMP}
@@ -194,6 +195,45 @@ When expired, the subscribed node will be removed from all PartialViews.
 It is a nodes responsibility to resubscribe once its subscription expires.
 This mechanic ensures that failed nodes will not remain in the network.
 
+\section{CYCLON}
+
+CYCLON \cite{Voulgaris05cyclon:inexpensive} is a cyclic peer sampling service.
+Each peer maintains a partial view of size $c$ and repeatedly exchanges its view with a neighbor - this operation is called a shuffle.
+The protocol works as follows\footnote{Enhanced Shuffling, described in \cite{Voulgaris05cyclon:inexpensive}}:
+
+Every $\bigtriangleup T$ time unit a node $i$ executes the shuffle function:
+
+\begin{enumerate}
+    \item{Increase by one the age of all neighbors.}
+    \item{Select neigbor $j$ with the highest age among all neighbors, and $l-1$\footnote{$1 \le l \le c$}} other random neighbors.
+    \item{Replace $j$'s entry with a new enty of age 0 and with $i$'s address.}
+    \item{Send the updated subset to peer $j$}
+    \item{Receive from $j$ a subset of no more than $t$ of its own entries.}
+    \item{Discard entries pointing at $j$ and entries already contained in $i$'s partial view.}
+    \item{Update $i$'s partial view to include all remaining entries, by firstly using empty slots (if any), and secondly replacing entries among the ones sent to $j$}
+\end{enumerate}
+
+On receiving the shuffle request from $i$ at $j$, $j$ sends back a random subset of $l$ of its neighbors and updates its own partial view with the sent data but it does not increase the age of the items in the partial view.
+
+When a node $i$ does not get a response from a node $j$ after it sent a shuffle request it will discard node $j$ from its partial view as it seems to be failed. 
+Because of this, failed nodes will be removed from the network in bounded time.
+
+As in SCAMP, if a node wants to join the network, it needs to know another node that is already part of it.
+
+\section{WebRTC}
+
+Web Real-Time Communications (WebRTC) is a client-side API to enanble Real-Time Communications in WEb browser \cite{webrtc}.
+
+\textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plugins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
+
+As we are mostly interested in sending arbitrary data beween peers we will focus on the DataChannel API.
+
+Unfortunately WebRTC cannot create a connection between peers without a signaling service. That means that we need some sort of communication exchange prior to the direct peer-to-peer connection.
+For WebRTC this could be a Websocket server.
+The image below illustes the connection workflow:
+
+\includegraphics[width=8cm]{Images/WebRTC}
+
 \section{Synthesis}
 
 %\begin{table*} % Use the starred version if the table is too large for a two-column document (screen version)
@@ -211,20 +251,11 @@ This mechanic ensures that failed nodes will not remain in the network.
 %    \caption{Comparison of various proposals}
 %    \label{tab:ProposalsComparison}
 %\end{table*}
-
-Given the problem of multiple documents $m$ in a network of $n$ processes the peer sampling service alone will result in a high delay of message delivery and an overloaded network (see \ref{sec:Statement of the problem}) which scales poorly.
-
-As mentioned above, T-MAN might evovle a random topology into a clustered network, depending on the chosen ranking function $R$. We will exploit this property to cluster together processes that work on the same document - now, with a structured overlay topology and interested nodes being close to each other we expect a huge improvement in message delivery speed (to relevant nodes).
-This solution will work well when all documents are modified by a distinct set of nodes but as soon as certain nodes work on multiple documents we will run into the problem of how to cluster the resulting network.
-
-Last but not least we must cover the unnecessary redundancy of messages that are send to processes which are not interested in the message.
-
+TBD
 
 \section{Conclusion}
 
-We must find a ranking function $R$ that somehow reflects nodes working on multiple documents for finding an appropriate network topology. 
-As we have approximate knowledge of the topology we can guess if a message is located in an area of the network that is relevant or not. A heuristic must ensure that a message does not scatter too far into the network where it is not relevant anymore.
-
+TBD
 %--------------------------------------------------------------------------------
 
 % \part{Proposals} % Commet it out if this has been done for the state-of-the-art
