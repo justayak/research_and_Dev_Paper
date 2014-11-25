@@ -85,22 +85,28 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 
 % 1:Motivation - why interesting and important for larger community?
 
-Motivation of this paper is ...
-Gossip-based peer-to-peer protocols have been applied to a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
+We investigate the problem of gossip-based peer-to-peer overlay networks on the internet. 
+Gossip-based peer-to-peer protocols have been used in a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
 Control is distributed symmetrically, peers are highly autonomous and independent, which allows the algorithms to be simple compared to hierarchical approaches.
 This protocols can easily scale to millions of peers which can join and leave without significantly disrupting the service.
 
-Today, many services use the internet as transport agent.
-End user devices\footnote{In this context we define an end user device as a personal computer or a consumer device (e.g. a PDA or a smart phone)} usually are members in private\footnote{to not get in trouble with IPv4-limitations} local area networks hidden behind routers.
-In general it is not possible for such a device to directly address another peer if they do not share the same local network, hence a external service like NAT is needed to establish a connection. 
-
+Internet end user devices\footnote{We define end user devices as personal computers or consumer devices like PDA's or smart phones.} are usually members in private local area networks, hidden to the internet behind routers and firewalls.
+It is not possible for such a device to directly address another peer if they do not share the same local network.
+Rather, local networks might be addressable by only one public ip address and the router must translate the packets to the correct peers (NAT).
+This is neccessary (a) for security reasons and (b) because of the size limitations of IPv4 which result in the fact that not every internet-enabled device can have a unique IP address.
+Additionally, the public network address might periodically change, depending on the network settings.
+In this rather volatile environment some sort of external service is needed to establish connections interactively\footnote{Interactive Connectivity Establishment (ICE)} to traverse network borders.
+NAT traversal and the need for some sort of signalling service that acquaints peers with each others makes establishing connections between peers more complex, more fragile and slower than it is in local networks.
 
 % 2:What is the specific problem? and background
-Problems emerge when a peer-to-peer
+Problems emerge when a peer-to-peer overlay network is constructed with such end user devices.
+Many gossip protocols build up upon the premise that the peers can interconnect easily with each other and, as such, constantly connecting to a new set of peers is the basis of many algorithms\cite{Voulgaris05cyclon:inexpensive}\cite{Jelasity:2004:PSS:1045658.1045666}.
+Unfortunally, in the context of the internet, we need some sort of global signalling service to introduce peers to each other prior to connection - we will call this process \emph{handshaking}.
+This potentially makes the system less scalable as a gossip protocol usually promisses.
 
 % 3:summarize main contributions. What is the general approach taken? Why significant? MUST BE GOOD!
 
-In this report, we show that ...
+In this report, we show how to integrate handshake 
 
 % 4:High level: what are the differences to what others have done. Reader must know whats new about this work
 % to compare to other work in the area
@@ -273,6 +279,7 @@ As in SCAMP and newscast, if a node wants to join the network, it needs to know 
 \section{WebRTC}
 
 Web Real-Time Communications (WebRTC) is a client-side API to enanble Real-Time Communications in WEb browser \cite{webrtc}.
+It is an implementation of SRTP\footnote{Secure Real-time Transport Protocol} with an SDP\footnote{Sockets Direct Protocol} control mechanism on top that can use STUN, TURN and ICE for NAT traversal.
 
 \textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plugins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
 
