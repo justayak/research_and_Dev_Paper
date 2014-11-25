@@ -16,7 +16,7 @@
 \begin{document}
 
 \title{A Robust Peer-To-Peer Gossiping Protocol in Routed Networks}
-\subtitle{A Model and Short Guide}
+\subtitle{Handshaking in Gossip Protocols}
 
 \authorA{Julian}{Tanke}
 \authorB{Julian}{Tanke}
@@ -87,59 +87,45 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 
 We investigate the problem of gossip-based peer-to-peer overlay networks on the internet. 
 Gossip-based peer-to-peer protocols have been used in a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
-Control is distributed symmetrically, peers are highly autonomous and independent, which allows the algorithms to be simple compared to hierarchical approaches.
+Peers are highly autonomous and independent, which allows the algorithms to be simple when compared to hierarchical approaches.
 This protocols can easily scale to millions of peers which can join and leave without significantly disrupting the service.
 
-Internet end user devices\footnote{We define end user devices as personal computers or consumer devices like PDA's or smart phones.} are usually members in private local area networks, hidden to the internet behind routers and firewalls.
-It is not possible for such a device to directly address another peer if they do not share the same local network.
-Rather, local networks might be addressable by only one public ip address and the router must translate the packets to the correct peers (NAT).
-This is neccessary (a) for security reasons and (b) because of the size limitations of IPv4 which result in the fact that not every internet-enabled device can have a unique IP address.
+End user devices\footnote{We define end user devices as personal computers or consumer devices like PDA's or smart phones.} rarely own a unique public ip address.
+Instead, they are members in private local area networks where they are connected to the internet through routers and firewalls.
+In such infrastructure, peers can only directly address each other if they share the same local network.
+Routers who connect such private networks to the internet usually have only one public address. 
 Additionally, the public network address might periodically change, depending on the network settings.
-In this rather volatile environment some sort of external service is needed to establish connections interactively\footnote{Interactive Connectivity Establishment (ICE)} to traverse network borders.
-NAT traversal and the need for some sort of signalling service that acquaints peers with each others makes establishing connections between peers more complex, more fragile and slower than it is in local networks.
+%This is neccessary (a) for security reasons and (b) because of the size limitations of IPv4 which result in the fact that not every internet-enabled device can have a unique IP address.
+In this rather volatile environment some sort of external service is needed to establish connections interactively\footnote{Interactive Connectivity Establishment (ICE)} and to traverse network borders.
+The need for a signalling service that acquaints peers with each others makes establishing connections between peers more complex, more fragile and slower than it is in local networks.
+We will call this process \emph{handshaking}.
+Some technologies\footnote{such as WebRTC} aggravate this situation as they cannot share peer-to-peer connections between nodes and instead need to execute the handshake again to establish a new connections.
 
 % 2:What is the specific problem? and background
 Problems emerge when a peer-to-peer overlay network is constructed with such end user devices.
-Many gossip protocols build up upon the premise that the peers can interconnect easily with each other and, as such, constantly connecting to a new set of peers is the basis of many algorithms\cite{Voulgaris05cyclon:inexpensive}\cite{Jelasity:2004:PSS:1045658.1045666}.
-Unfortunally, in the context of the internet, we need some sort of global signalling service to introduce peers to each other prior to connection - we will call this process \emph{handshaking}.
-This potentially makes the system less scalable as a gossip protocol usually promisses.
+Many gossip protocols build up upon the premise that the peers can interconnect easily with each other and, as such, constantly connect to new sets of peers\cite{Voulgaris05cyclon:inexpensive}\cite{Jelasity:2004:PSS:1045658.1045666}.
+The constant need for handshaking makes the system less scalable as gossip protocols usually promisses.
 
 % 3:summarize main contributions. What is the general approach taken? Why significant? MUST BE GOOD!
 
-In this report, we show how to integrate handshake 
+In this report we show that \textbf{===WE DONT KNOW YET!(SCAMP vs CYCLON vs NEWSCAST vs SELF)===}.
+Furthermore, we show that the handshake mechanics can be transferred to the peer-to-peer system.
+This reduces the use of the global signalling service to a minimum, as it will be used only to introduce completely new nodes to the system.
 
 % 4:High level: what are the differences to what others have done. Reader must know whats new about this work
 % to compare to other work in the area
 
-err
+Gossip protocols that are designed for the internet have already been introduced by \cite{Ganesh:2003:PMM:642778.642782} and\cite{Voulgaris03arobust}.
+However, this protocols assume that a connection can be established with direct addressing, ignoring the limitations mentioned above.
 
 % 5:structure
 
 The remainder of this paper is structured as follows: 
-
-%OLD
-Gossip algorithms, also called epidemic algorithms, present a simple, scalable and robust way of disseminate information in large-scale networks \cite{Demers:1987:EAR:41840.41841}, even if nodes regularly join and leave.
-
-Many of those algorithms rely on periodically exchanging information with random peers in the network to maintain a uniform distribution \cite{Karp00randomizedrumor} \cite{Jelasity:2004:PSS:1045658.1045666}.
-This works well in local area networks where addressing other peers is simple and relativly fast (\footnote{\color{red} I probably do need to reference this 'asumption'?}).
-In practice, however, peers are often members in extended networks (WAN) where they are scattered over multiple local networks without having a globally accessably address. 
-Devices are usually hidden behind network address translation (NAT) where they are not directly accessible by devices from another subnet - a signaling service is needed.
-This drastically increases the complexity of establishing connections between peers.
-
-%contrib
-In this report we study how various gossip protocols behave when they are applied in a wide area network. 
-We will compare how their behaviour differs from their original implementations and elaborate necessary modifications so that these protocols work more efficiently and stable in an extended network with as few external services as possible. 
-We solve this by delegating the signaling service to the gossip protocol. Peers function as man-in-the-middle to hoist connections between their neigbors.
-
-%struct
-The rest of the report is structured as following:
-
-\begin{itemize}
-    \item{\textbf{Chapter~\ref{chap:StateOfTheArt}} studies a number of gossip protocols and introduces the technology WebRTC. Further we will explain the differences of an extended network and a local area network assumed by this report.}
-    \item{\textbf{Chapter~\ref{chap:Proposals}} evaluates what gossip protocols are applicable with acceptable complexity and suggests changes to the algorithms to make them more robust. Furthermore we will study of how to introduce the signaling service into the algorithms. }
-    \item{\textbf{Chapter~\ref{chap:Experiments}} follows a development, experiment, and analysis path in order to quantify the theoretical results.}
-    \item{Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.}
-\end{itemize}
+Chapter~\ref{chap:StateOfTheArt} studies a number of gossip protocols and introduces the basic technology. 
+In Chapter~\ref{chap:Proposals} we will introduce an example application. 
+Furthermore we will outline the requirements for a handshaking gossip protocol.
+Chapter~\ref{chap:Experiments} follows a development, experiment, and analysis path in order to quantify the theoretical results.
+Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.
 
 %-------------------------------------------------------------------------------------------------------------
 
@@ -226,7 +212,6 @@ Every $\bigtriangleup T$ (\textit{refresh interval}) time the correspondents exc
 \end{enumerate}
 
 The receiving correspondent executes the last three steps as well.
-
 Synoptical, each agents knows only a small, permanently changing set of peers of which one is chosen to exchange information.
 
 \section{SCAMP}
