@@ -141,31 +141,30 @@ This chapter introduces fundamental algorithms and concepts.
 
 \section{Gossip Protocol}
 
-Gossip is a  communication protocol initially inspired by observing of how gossips spread in social networks or how diseases spread over a population.
+Gossip, also refered to as \emph{epidemic dissemination}, is a  communication protocol initially inspired by observing of how gossips spread in social networks or how diseases spread over a population.
 It trades reliability guarantees against scalability properties \cite{Eugster:2003:LPB:945506.945507} and it has been applied to various large scale systems, with the purpose of information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470}, network management \cite{conf/dsom/VoulgarisS03} and many more.
 
 The basic idea behind gossip works as follows:
-Consider a a network of $n$ nodes denoted by $V=\{1,...,n\}$.
-Let $E \subset V \times V$ denote neighboring\footnote{In this paper, nodes are considered neighbors if they are directly connected to each other} nodes, let this network graph be denoted by $G = (V,E)$ and let $d_i$ denote the degree of node $i$ in $G$ where 
+a network is a graph $G=(V,E)$ where $V=\{1,...,n\}$ is a set of $n$ nodes.
+Let $E \subset V \times V$ denote neighboring\footnote{In this paper, nodes are considered neighbors if they are directly connected to each other} nodes and let $d_i$ denote the degree of node $i$ in $G$ where 
 $d_i$ is constrained by the configuration parameter $c \in \mathbb{Z}_{>0}$ which is called Fanout.
 The Fanout defines the number of nodes that are selected when a message is broadcast from a node.
 A high value generates a lot of redundant messages while being more fault tolerant and reliable. 
 $V$ and $E$ constantly change as nodes leave and join the network and nodes update there neighbors to maintain a uniform distribution.
 
 Assuming a node $i$ wants to broadcast a message $m$ - It sends $m$ to its $d_i$ neighboring nodes. 
-A receiving node $j$ evaluates if it already knows $m$ - and if not, it will repeat the previous procedure: broadcast to its $d_j$ neighboring nodes and so forth. 
+A receiving node $j$ evaluates if it already knows $m$ \cite{Koldehofe03buffermanagement} - and if not, it will repeat the previous procedure: broadcast to its $d_j$ neighboring nodes and so forth. 
 
-Usually, one can distinguish between two types of epidemic dissemination of messages\cite{Demers:1987:EAR:41840.41841}:
+Usually three types of epidemic dissemination of messages can be distinguished:
 \begin{itemize}
-    \item \textbf{Rumor mongering:} (reactive) When receiving a message, a node sends it to all other nodes in its view.
-    \item \textbf{Anti-entropy:} A node periodically queries one random other node to check for message it has not received yet.
+    \item \textbf{Push:} When receiving a message, a node sends it to all other nodes in its view.
+    \item \textbf{Pull:} A node periodically queries one random other node to check for message it has not received yet.
+    \item \textbf{Push-Pull:} A node sends a message to another random peer and, additionally, queries said peer for data.
 \end{itemize}
 
 When $n$ is very large, for a given node $i$ it applies that $d_i << n$.
-This is necessary for scalability reasons as, otherwise, the list of neighbors might exhaust a nodes memory and maintaining the list in presence of churn would be too expansive.
+This is necessary for scalability reasons as, otherwise, the list of neighbors might exhaust a nodes memory and maintaining the list in presence of churn\footnote{Nodes constantly join and leave the network} would be too expansive.
 We will call $\mathcal{N}_i \equiv \{j\in V:(i,j)\in E\}$ the \textbf{partial view} of $i$.
-
-For scalability reasons a node $i$ cannot know all available other nodes in $V$ as this might exhaust its memory and because maintaining the list in presence of churn would be too expansive - for this reason nodes will see only a subset of processes, which we will call \textbf{partial view}.
 
 \section{Peer Sampling Service}
 
