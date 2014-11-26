@@ -154,23 +154,24 @@ $V$ and $E$ constantly change as nodes leave and join the network and nodes upda
 
 Assuming a node $i$ wants to broadcast a message $m$ - It sends $m$ to its $d_i$ neighboring nodes. 
 A receiving node $j$ evaluates if it already knows $m$ \cite{Koldehofe03buffermanagement} - and if not, it will repeat the previous procedure: broadcast to its $d_j$ neighboring nodes and so forth. 
-
 Usually three types of epidemic dissemination of messages can be distinguished:
 \begin{itemize}
     \item \textbf{Push:} When receiving a message, a node sends it to all other nodes in its view.
-    \item \textbf{Pull:} A node periodically queries one random other node to check for message it has not received yet.
+    \item \textbf{Pull:} A node periodically queries one random other node to check for messages it has not received yet.
     \item \textbf{Push-Pull:} A node sends a message to another random peer and, additionally, queries said peer for data.
 \end{itemize}
 
 When $n$ is very large, for a given node $i$ it applies that $d_i << n$.
 This is necessary for scalability reasons as, otherwise, the list of neighbors might exhaust a nodes memory and maintaining the list in presence of churn\footnote{Nodes constantly join and leave the network} would be too expansive.
 We will call $\mathcal{N}_i \equiv \{j\in V:(i,j)\in E\}$ the \textbf{partial view} of $i$.
+The partial view should consist of a random sample of $V$.
 
 \section{Peer Sampling Service}
 
-The peer sampling service \cite{Jelasity:2004:PSS:1045658.1045666}, or, random peer sampling (RPS), is a service that allows nodes in a gossip protocol to get a subset of the whole network $V$.
-RPS can be used in a variety of gossip-based protocols, for example in topology management \cite{Jelasity:2009:TGF:1570533.1570626}. 
-It consists of a very simple API:
+The peer sampling service \cite{Jelasity:2004:PSS:1045658.1045666}, or, random peer sampling (RPS), is a membership protocol.
+The purpose of RPS is to provide each peer with a \emph{uniform sample} of $V$ in a distributed and scalable manner.
+It can be used in a variety of gossip-based protocols, for example in topology management \cite{Jelasity:2009:TGF:1570533.1570626}. 
+The peer sampling service consists of a simple API:
 
 \begin{itemize}
     \item{\textbf{init:}} Initializes the service on a given node if this has not been done before. This is implementation dependent.
@@ -188,52 +189,51 @@ An example algorithm is CYCLON \cite{Voulgaris05cyclon:inexpensive}.}
 
 \section{Newscast}
 
-The newscast protocol \cite{Voulgaris03arobust}\cite{Jelasity02large-scalenewscast} serves for information dissemination and as memebership management protocol where joining and leaving the network is very cheap.
+The newscast protocol \cite{Voulgaris03arobust}\cite{Jelasity02large-scalenewscast} serves as information dissemination protocol where joining and leaving the network is very cheap.
 If a node wants to join the system it only needs to know the address of an arbitrary member, for leaving the network no action is necessary, the node can simply stop communicating.
 
-Abstractly it works by employing a group of nodes called \emph{collective of agents} and a \emph{news agency}.
-All agents must implement a simple API consisting of \textbf{getNews()} and \textbf{newsUpdate(news)}.
-For the protocol, all agents are passive and are queried by the news agency.
+Abstractly it works by employing a \emph{news agency}.
+All peers must implement a simple API consisting of \textbf{getNews()} and \textbf{newsUpdate(news)}.
+For the protocol, peers are passive and are queried by the news agency.
 \textbf{getNews} is called regularly by the agency to obtain any news. 
 Additional to that, the news agency provides the whole collective with news by calling \textbf{updateNews}.
-The news agency can be implemented in a fully distributed fashion by running an associated \emph{correspondent} that runs on the same machine as the agent \cite{Voulgaris03arobust}.
-
-Each correspondent has a news cache of size $c$ where the news optained from the agent are timestamped and stored.
-
+The news agency can be implemented in a fully distributed fashion by running an associated \emph{correspondent} that runs on the same machine as the peer \cite{Voulgaris03arobust}.
+Each correspondent has a news cache of size $c$ where the news optained from the peer are timestamped and stored.
 Every $\bigtriangleup T$ (\textit{refresh interval}) time the correspondents exchange their caches applying the following steps\footnote{as described in \cite{Voulgaris03arobust} Section 2.1}:
 
 \begin{enumerate}
-    \item{Request a fresh news item from the local agent by calling \textbf{getNews}. Add the item to the cache.}
+    \item{Request a fresh news item from the local peer by calling \textbf{getNews}. Add the item to the cache.}
     \item{Radomly select a peer correspondent by considering the netwok address of other (and available) correspondents as found in the cache.}
     \item{Send all cache entries to the selected peer, and, in turn, receive all the peer's cache entries. Merge the received entries into the local cache.}
-    \item{Pass the received cache entries from the peer agent to the local agent by calling \textbf{newsUpdate}.}
+    \item{Pass the received cache entries from the peer node to the local peer by calling \textbf{newsUpdate}.}
     \item{The correspondent now has $2c$ cache entries; it subsequently throws away the $c$ oldest ones.}
 \end{enumerate}
 
 The receiving correspondent executes the last three steps as well.
-Synoptical, each agents knows only a small, permanently changing set of peers of which one is chosen to exchange information.
+Synoptical, each node knows only a small, permanently changing set of peers of which one is chosen to exchange information.
 
 \section{SCAMP}
 
 The probabilistic scalable membership protocol (SCAMP)\cite{Ganesh:2001:SPL:648089.747488} is a reactive peer sampling service.
 The size of its local views adapt automatically to a desired value of $(c+1)\log{n}$ where $c$ is a  parameter which specifies the degree of robustness to failure(\cite{Kermarrec:2003:PRD:766617.766623}, \emph{Theorem 1}).
-It maintains two separated partial views\cite{Ganesh:2003:PMM:642778.642782}, one for receiving gossip messages (InView) one for sending gossip messages (PartialView).
+It maintains two separated partial views\cite{Ganesh:2003:PMM:642778.642782}, one for receiving gossip messages (InView $\mathcal{N}^{in}$), one for sending gossip messages (PartialView $\mathcal{N}^{out}$).
 
-If a new node $k$ wants to join the network $G(V,E)$ it needs to have one member $i \in V$ in its $PartialView_k$ and send a subscription request to $i$.
-On receiving a subscription request, $i$ forwards the new peer to all members of its own $PartialView_i$, and, additianally, creates $c$ copies of the new subscription and forwards them to randomly chosen nodes in $PartialView_i$.
-
-On receiving a fowarded subscription for node $k$, a receiving node $j$ integrates $k$ into its $PartialView_j$ with probability $p$ which depends on the size of $PartialView_j$ ($p=\frac{1}{1+|PartialView|}$). 
-If $j$ does not integrate $k$, it forwards it to another randomly chosen peer from its $PartialView_j$.
-
-When a node $i$ decides to keep the subscription of a node $j$, it integrates $j$ into its $PartialView_i$ and notifies $j$ to put $i$ into its $InView_j$.
-
-On leaving the network, the leaving node $j$ sends a \emph{replace request} containing a peer from its $PartialView_j$ to $|InView_j|-c$ peers in its $InView_j$ and a \emph{deleting request} to the remaining ones.
-When a node $i$ receives the \emph{replace request} from $j$, it will replace $j$ for the sent peer in its $PartialView_i$.
+If a new node $k$ wants to join the network $G(V,E)$ it needs to have one member $i \in V$ in $\mathcal{N}_k^{out}$ and send a subscription request to $i$.
+On receiving a subscription request, $i$ forwards the new peer to all members of its own $\mathcal{N}_i^{out}$, and, additianally, creates $c$ copies of the new subscription and forwards them to randomly chosen nodes in $\mathcal{N}_i^{out}$.
+On receiving a fowarded subscription for node $k$, a receiving node $j$ integrates $k$ into its $\mathcal{N}_j^{out}$ with probability $p$ which depends on the size of $\mathcal{N}_j^{out}$ ($p_i=\frac{1}{1+|\mathcal{N}_i^{out}|}$). 
+If $j$ does not integrate $k$, it forwards it to another randomly chosen peer from its $\mathcal{N}_j^{out}$.
+When a node $i$ decides to keep the subscription of a node $j$, it integrates $j$ into its $\mathcal{N}_i^{out}$ and notifies $j$ to put $i$ into its $InView_j$.
+On leaving the network, the leaving node $j$ sends a \emph{replace request} containing a peer from its $\mathcal{N}_j^{out}$ to $|\mathcal{N}_j^{in}|-c$ peers in its $\mathcal{N}_j^{in}$ and a \emph{deleting request} to the remaining ones.
+When a node $i$ receives the \emph{replace request} from $j$, it will replace $j$ for the sent peer in its $\mathcal{N}_i^{out}$.
 
 A subscription has a finite lifetime called \emph{lease}\footnote{The lease is implementation dependend: it could be set individually or it could be set globally}.
 When expired, the subscribed node will be removed from all PartialViews.
 It is a nodes responsibility to resubscribe once its subscription expires.
 This mechanic ensures that failed nodes will not remain in the network.
+Furthermore, the lease mechanism rebalances the network making it more robust.
+Indeed, when a peer joins the system, it only has one node in its partial view, which makes it vulnerable to failures.
+However, when peers resubscribe, it adds the link to its inView and therefore, to others partial view.
+Hence, even the new peers can get subscription requests.
 
 \section{CYCLON}
 
@@ -254,15 +254,13 @@ Every $\bigtriangleup T$ time unit a node $i$ executes the shuffle function:
 \end{enumerate}
 
 On receiving the shuffle request from $i$ at $j$, $j$ sends back a random subset of $l$ of its neighbors and updates its own partial view with the sent data but it does not increase the age of the items in the partial view.
-
 When a node $i$ does not get a response from a node $j$ after it sent a shuffle request it will discard node $j$ from its partial view as it seems to be failed. 
 Because of this, failed nodes will be removed from the network in bounded time.
-
 As in SCAMP and newscast, if a node wants to join the network, it needs to know another node that is already part of it.
 
 \section{WebRTC}
 
-Web Real-Time Communications (WebRTC) is a client-side API to enanble Real-Time Communications in WEb browser \cite{webrtc}.
+Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browser \cite{webrtc}.
 It is an implementation of SRTP\footnote{Secure Real-time Transport Protocol} with an SDP\footnote{Sockets Direct Protocol} control mechanism on top that can use STUN, TURN and ICE for NAT traversal.
 
 \textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plugins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
