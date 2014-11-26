@@ -413,9 +413,11 @@ TBD
 \chapter{Proposals}
 \label{chap:Proposals}
 
-A possible application for gossip-based peer-to-peer networks over the internet could be a serverless massive collaborative editor \cite{nedelec:hal-00921633}\cite{MassCollab} in a web browser.
-A gossip-based peer-to-peer network would scale better than a traditional server-client-architecture like Google Docs (which only allows 50 users to work on one document) or Microsoft Word Online.
-A peer-to-peer connection can be established using WebRTC. 
+Suppose we want to build a massive distributed collaborative editor(DCE) \cite{nedelec:hal-00921633}\cite{MassCollab} in a web browser using WebRTC to construct a peer-to-peer network.
+We want the DCE to support millions of concurrent users.
+The peer-to-peer approach will scale better than a traditional server-client-architecture like Google Docs (which only allows 50 users to work on one document) or Microsoft Word Online as there will not be a bottleneck.
+Nevertheless, a full graph is unreasonable as it will exhaust the peers when the number of participants is too big.
+
 
 TBD MORE 
 
