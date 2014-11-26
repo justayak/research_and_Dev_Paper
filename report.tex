@@ -260,16 +260,14 @@ As in SCAMP and newscast, if a node wants to join the network, it needs to know 
 
 \section{WebRTC}
 
-Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browser \cite{webrtc}.
+Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browsers \cite{webrtc}.
 It is an implementation of SRTP\footnote{Secure Real-time Transport Protocol} with an SDP\footnote{Sockets Direct Protocol} control mechanism on top that can use STUN, TURN and ICE for NAT traversal.
 
 \textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plugins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
 
-As we are mostly interested in sending arbitrary data beween peers we will focus on the DataChannel API.
-
+As we are interested in sending arbitrary data beween peers we will focus on the DataChannel API.
 Unfortunately WebRTC cannot create a connection between peers without a signaling service. That means that we need some sort of communication exchange prior to the direct peer-to-peer connection.
 For WebRTC this could be a Websocket server.
-The image below illustes the connection workflow:
 
 \includegraphics[width=8cm]{Images/WebRTC}
 
