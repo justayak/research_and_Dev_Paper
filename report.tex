@@ -290,7 +290,11 @@ Pseudocode: \cite{Ganesh:2001:SPL:648089.747488}, Section 2.1
         \State $keep \gets$ randomChoiceBetween0and1()
         \State $keep \gets \lfloor (|\mathcal{N}^{out}| + 1) * keep \rfloor$
         \If{$keep \equiv 0 $ and $subscriber \notin \mathcal{N}^{out}$}
+        \State 
+        \State // potentially very expensive as the handshake must be traced over
+        \State // possibly many hops
         \State $\mathcal{N}^{out} \gets \mathcal{N}^{out} \cup \{subscriber\}$
+        \State
         \Else
         \State $peer \gets$ sample($\mathcal{N}^{out}$, $1$)
         \State send \textbf{forwardSubscription} with $subscriber$ to $peer$
@@ -322,6 +326,49 @@ When a node $i$ does not get a response from a node $j$ after it sent a shuffle 
 Because of this, failed nodes will be removed from the network in bounded time.
 As in SCAMP and newscast, if a node wants to join the network, it needs to know another node that is already part of it.
 
+\begin{algorithm}
+    \caption{Active}
+    \begin{algorithmic}[1]
+        \While{Termination condition not reached}
+        \State wait $\bigtriangleup T$
+        \State $partialView \gets$ increaseAge($partialView$)
+        \State $peer \gets$ max(orderByAge($partialView$))
+        \State $rand \gets $ sample($partialView \backslash \{peer\}$ , $l-1$) $\cup \{$[addr:$ownAddress$, age:$0$]$\}$
+        \State send $rand$ to $peer$
+        \State $otherRand \gets $ receive from $peer$
+        \State $otherRand \gets otherRand \backslash \{partialView \cup \{[addr:ownAddress, age:*]\}\}$
+        \State $partialView \gets partialView \backslash rand$
+        \State
+        \State // this part is very expensive with handshake
+        \State $partialView \gets partialView \cup otherRand$
+        \State
+        \While{$|partialView| < c$}
+        \State $partialView \gets shift(orderByAge(rand))$ // shift removes the first element of an list
+        \EndWhile
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Passive}
+    \begin{algorithmic}[1]
+        \Procedure{OnExchange}{$peer$, $otherRand$}
+        \State $rand \gets$ sample($partialView$, $l$)
+        \State send $rand$ to $peer$
+        \State $otherRand \gets otherRand \backslash partialView$
+        \State $partialView \gets partialView \backslash rand$
+        \State
+        \State // this part is very expensive with handshake
+        \State $partialView \gets partialView \cup otherRand$
+        \State
+        \While{$|partialView| < c$}
+        \State $partialView \gets shift(orderByAge(rand))$ // shift removes the first element of an list
+        \EndWhile
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+
 \section{WebRTC}
 
 Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browsers \cite{webrtc}.
@@ -330,7 +377,8 @@ It is an implementation of SRTP\footnote{Secure Real-time Transport Protocol} wi
 \textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plugins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
 
 As we are interested in sending arbitrary data beween peers we will focus on the DataChannel API.
-Unfortunately WebRTC cannot create a connection between peers without a signaling service. That means that we need some sort of communication exchange prior to the direct peer-to-peer connection.
+Unfortunately WebRTC cannot create a connection between peers without a signaling service. 
+That means that we need some sort of communication exchange (Handshake) prior to the direct peer-to-peer connection.
 For WebRTC this could be a Websocket server.
 
 \includegraphics[width=8cm]{Images/WebRTC}
@@ -365,11 +413,11 @@ TBD
 \chapter{Proposals}
 \label{chap:Proposals}
 
-Massiv colab \cite{MassCollab}
-
-A possible application for gossip protocols in a wide area network could be a serverless massive collaborative editor \cite{nedelec:hal-00921633} in a web browser.
+A possible application for gossip-based peer-to-peer networks over the internet could be a serverless massive collaborative editor \cite{nedelec:hal-00921633}\cite{MassCollab} in a web browser.
 A gossip-based peer-to-peer network would scale better than a traditional server-client-architecture like Google Docs (which only allows 50 users to work on one document) or Microsoft Word Online.
-A peer-to-peer connection can be established using WebRTC\cite{webrtc}, a recent web technology that enables multimedia and data sharing between browser clients - however, the difficulties regarding establishing connections must be addressed. 
+A peer-to-peer connection can be established using WebRTC. 
+
+TBD MORE 
 
 Introduce the various ideas and proposals. As for the state-of-the-art, if this chapter is too long, split it into different chapters.
 
