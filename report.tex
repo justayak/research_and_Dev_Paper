@@ -8,8 +8,8 @@
 % some definitions for the actual contents
 \usepackage{enumerate}
 \usepackage{amsmath, amssymb}
-\usepackage{algorithm}
-\usepackage{algorithmic}
+\usepackage{algorithm,algpseudocode}
+%\usepackage{algorithmic}
 \usepackage{color}
 \usepackage{graphicx}
 
@@ -212,6 +212,39 @@ Every $\bigtriangleup T$ (\textit{refresh interval}) time the correspondents exc
 The receiving correspondent executes the last three steps as well.
 Synoptical, each node knows only a small, permanently changing set of peers of which one is chosen to exchange information.
 
+\begin{algorithm}
+    \caption{Active}
+    \begin{algorithmic}[1]
+        \State // Executed by any correspondent    
+        \While{Termination condition not reached}
+            \State wait $\bigtriangleup T$
+            \State $news \gets$ getNews()
+            \State $peer \gets$ selectRadom( getAddresses($cache$))
+            \State
+            \State // expensive with handshake
+            \State send $cache$ to $peer$
+            \State
+            \State $otherCache \gets$ receive from $peer$
+            \State $cache \gets$ merge($cache$, $otherCache$)
+            \State newsUpdate($otherCache$)
+            \State $cache \gets$ first(orderByAge($cache$), $c$)
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Passive}
+    \begin{algorithmic}[1]
+        \State // Listens on any correspondent
+        \Procedure{OnExchange}{$peer$, $otherCache$}
+        \State send $cache$ to $peer$
+        \State $cache \gets$ merge($cache$, $otherCache$)
+        \State newsUpdate($otherCache$)
+        \State $cache \gets$ first(orderByAge($cache$), $c$)
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
 \section{SCAMP}
 
 The probabilistic scalable membership protocol (SCAMP)\cite{Ganesh:2001:SPL:648089.747488} is a reactive peer sampling service.
@@ -234,6 +267,37 @@ Furthermore, the lease mechanism rebalances the network making it more robust.
 Indeed, when a peer joins the system, it only has one node in its partial view, which makes it vulnerable to failures.
 However, when peers resubscribe, it adds the link to its inView and therefore, to others partial view.
 Hence, even the new peers can get subscription requests.
+
+Pseudocode: \cite{Ganesh:2001:SPL:648089.747488}, Section 2.1
+\begin{algorithm}
+    \caption{Subscription management}
+    \begin{algorithmic}[1]
+        \Procedure{OnSubscribe}{$subscriber$}
+        \For{each $peer$ in $\mathcal{N}^{out}$}
+        \State send \textbf{forwardedSubscription} with $subscriber$ to $peer$
+        \EndFor
+        \For{each $peer$ in sample($\mathcal{N}^{out}$, $c$)}
+        \State send \textbf{forwardedSubscription} with $subscriber$ to $peer$
+        \EndFor
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Handling of a forwarded subscription}
+    \begin{algorithmic}[1]
+        \Procedure{OnForwardedSubscription}{$subscriber$}
+        \State $keep \gets$ randomChoiceBetween0and1()
+        \State $keep \gets \lfloor (|\mathcal{N}^{out}| + 1) * keep \rfloor$
+        \If{$keep \equiv 0 $ and $subscriber \notin \mathcal{N}^{out}$}
+        \State $\mathcal{N}^{out} \gets \mathcal{N}^{out} \cup \{subscriber\}$
+        \Else
+        \State $peer \gets$ sample($\mathcal{N}^{out}$, $1$)
+        \State send \textbf{forwardSubscription} with $subscriber$ to $peer$
+        \EndIf
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
 
 \section{CYCLON}
 
