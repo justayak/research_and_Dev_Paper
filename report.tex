@@ -383,7 +383,7 @@ For WebRTC this could be a Websocket server.
 
 \includegraphics[width=8cm]{Images/WebRTC}
 
-\section{Synthesis}
+%\section{Synthesis}
 
 %\begin{table*} % Use the starred version if the table is too large for a two-column document (screen version)
 %    \begin{center}
@@ -400,11 +400,20 @@ For WebRTC this could be a Websocket server.
 %    \caption{Comparison of various proposals}
 %    \label{tab:ProposalsComparison}
 %\end{table*}
-TBD
 
 \section{Conclusion}
 
-TBD
+All of the mentioned algorithms have certain problems and limitations when handshaking is added.
+In newscast the value of $\bigtriangleup T$ must be higher than the time the peers need to connect.
+This could be implemented by setting $CONNECTION-TIMEOUT < \bigtriangleup T$.
+This will, possibly significantly, increase the time a news will take to be fully disseminated into the network.
+
+SCAMP will face the need for a much more complex algorithm as it needs to provide a routed signalling service over possibly many nodes.
+A way to repair a route in case of node-failure must be found as SCAMP would otherwise be extremly unstable.
+
+CYCLON faces similar issues as newscast and can, accordingly, be modified to fullfill the basic needs for handshaking (set $\bigtriangleup T$ higher than the connection timeout).
+The problem here is the same as in newscast: messages will be dissemiated slower.
+
 %--------------------------------------------------------------------------------
 
 % \part{Proposals} % Commet it out if this has been done for the state-of-the-art
