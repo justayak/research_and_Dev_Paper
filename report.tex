@@ -85,8 +85,15 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 
 % 1:Motivation - why interesting and important for larger community?
 
-We investigate the problem of gossip-based peer-to-peer overlay networks on the internet. 
-Gossip-based peer-to-peer protocols have been used in a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
+Many efforts have been devoted to establish data connections between browsers using the WebRTC API\cite{webrtc}.
+Services like PeerCDN\cite{peercdn}, webtorrent\cite{webtorrent} or Sharefest\cite{sharefest} demonstrate how decentralized services now can be easily deployed in web browsers.
+This improves the user experience drastically as users can now download a torrent as easy as watching a youtube video.
+However, current solutions do not provide a scalable broadcast.
+This, however, is essential for other applications such as a distributed collaborative editor or a distributed social network.
+Traditionally, gossip protocols are used to implement broadcast in decentralized infrastructure.
+This raise the problem of deploying gossip algorithms on WebRTC.
+
+As mentioned, gossip-based peer-to-peer protocols have been used in a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
 Peers are highly autonomous and independent, which allows the algorithms to be simple when compared to hierarchical approaches.
 This protocols can easily scale to millions of peers which can join and leave without significantly disrupting the service.
 
