@@ -89,28 +89,20 @@ Many efforts have been devoted to establish data connections between browsers us
 Services like PeerCDN\cite{peercdn}, webtorrent\cite{webtorrent} or Sharefest\cite{sharefest} demonstrate how decentralized services now can be easily deployed in web browsers.
 This improves the user experience drastically as users can now download a torrent as easy as watching a youtube video.
 However, current solutions do not provide a scalable broadcast.
-This, however, is essential for other applications such as a distributed collaborative editor or a distributed social network.
+This, however, is essential for other applications such as distributed collaborative editors or distributed social networks.
 Traditionally, gossip protocols are used to implement broadcast in decentralized infrastructure.
-This raise the problem of deploying gossip algorithms on WebRTC.
-
-As mentioned, gossip-based peer-to-peer protocols have been used in a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
+This protocols have been used in a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
 Peers are highly autonomous and independent, which allows the algorithms to be simple when compared to hierarchical approaches.
 This protocols can easily scale to millions of peers which can join and leave without significantly disrupting the service.
 
-End user devices\footnote{We define end user devices as personal computers or consumer devices like PDA's or smart phones.} rarely own a unique public ip address.
-Instead, they are members in private local area networks where they are connected to the internet through routers and firewalls.
-In such infrastructure, peers can only directly address each other if they share the same local network.
-Routers who connect such private networks to the internet usually have only one public address. 
-Additionally, the public network address might periodically change, depending on the network settings.
-%This is neccessary (a) for security reasons and (b) because of the size limitations of IPv4 which result in the fact that not every internet-enabled device can have a unique IP address.
-In this rather volatile environment some sort of external service is needed to establish connections interactively\footnote{Interactive Connectivity Establishment (ICE)} and to traverse network borders.
-The need for a signalling service that acquaints peers with each others makes establishing connections between peers more complex, more fragile and slower than it is in local networks.
-We will call this process \emph{handshaking}.
-Some technologies\footnote{such as WebRTC} aggravate this situation as they cannot share peer-to-peer connections between nodes and instead need to execute the handshake again to establish a new connections.
-
 % 2:What is the specific problem? and background
-Problems emerge when a peer-to-peer overlay network is constructed with such end user devices.
+This raise the problem of deploying gossip algorithms on WebRTC.
 Many gossip protocols build up upon the premise that the peers can interconnect easily with each other and, as such, constantly connect to new sets of peers\cite{Voulgaris05cyclon:inexpensive}\cite{Jelasity:2004:PSS:1045658.1045666}.
+Unfortunatly, certain efforts must be taken to establish a peer-to-peer connection with WebRTC.
+For establishing a peer-to-peer connection under WebRTC, however, certain efforts must be taken.
+To set up a connection between peers, they need to perform a handshake, consisting of an offer by one client and an responding answer by the other.
+
+
 The constant need for handshaking makes the system less scalable as gossip protocols usually promisses.
 
 % 3:summarize main contributions. What is the general approach taken? Why significant? MUST BE GOOD!
