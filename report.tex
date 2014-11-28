@@ -15,8 +15,8 @@
 
 \begin{document}
 
-\title{A Robust Peer-To-Peer Gossiping Protocol in Routed Networks}
-\subtitle{Handshaking in Gossip Protocols}
+\title{Massive Broadcasting with WebRTC}
+\subtitle{An evaluation of peer-to-peer networks with handshakes}
 
 \authorA{Julian}{Tanke}
 \authorB{}{}
@@ -146,7 +146,7 @@ Figure~\ref{fig:webrtc} demonstrates how a connection is established in WebRTC:
 To obtain this information, she queries a well-known STUN-Server.}
     \item{To establish a connection with Bob, she now needs to create an offer and send it to the signaling service.}
     \item{The signaling service selects Bob and forwards Alice's offer to him.}
-    \item{We assume, that Bob already know his network setup (as he called a STUN-Server before).
+    \item{We assume, that Bob already knows his network setup (as he called a STUN-Server before).
 Bob accepts the request that Alice sends to him and wants to communciate. To do so he must create an answer and send it back to Alice. As Bob does not know how to connect to Alice yet, he sends the answer to the signaling service instead.}
     \item{The signaling service sends the answer back to Alice.}
     \item{Upon receiving Bob's positive answer, Alice sends a description of how the communication will be done and how Bob can send data to her. As she does not know how to directly connect to Bob yet, she sends this information to the signaling service.}
@@ -157,11 +157,20 @@ Bob accepts the request that Alice sends to him and wants to communciate. To do 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=8cm]{Images/WebRTC}
+    \includegraphics[width=9cm]{Images/WebRTC}
     \caption{Examplary WebRTC connection}
     \label{fig:webrtc}
 \end{figure}
 
+
+\section{Massive Collaborative Editing}
+
+One application for a gossip-based WebRTC network is a massive collaborative editor \cite{nedelec:hal-00921633}\cite{MassCollab} that runs in the web browser.
+Unlike current solutions such as Google Docs, Microsoft Word Online or Etherpad we want to support millions of users on one document (e.g. Google Docs only allows 50 users to work on one document).
+\cite{MassCollab} describes how parallel editing can scale well with the number of users, implied that some sort of broadcast exists.
+However, no assumptions are made about how this broadcast is done.
+A centralized service or a fully connected graph do not scale well with the user count.
+Instead, using the proposed gossip-based peer-to-peer protocol for WebRTC will make the application more scalable and robust.
 
 %-------------------------------------------------------------------------------------------------------------
 
@@ -255,14 +264,14 @@ Synoptical, each node knows only a small, permanently changing set of peers of w
         \While{Termination condition not reached}
             \State wait $\bigtriangleup T$
             \State $news \gets$ getNews()
+            \State $cache \gets cache \cup \{news\}$
             \State $peer \gets$ selectRadom( getAddresses($cache$))
-            \State
-            \State // expensive with handshake
             \State send $cache$ to $peer$
-            \State
             \State $otherCache \gets$ receive from $peer$
             \State $cache \gets$ merge($cache$, $otherCache$)
             \State newsUpdate($otherCache$)
+            \State
+            \State // potentially expensive with handshake, as we need to establish connections
             \State $cache \gets$ first(orderByAge($cache$), $c$)
         \EndWhile
     \end{algorithmic}
@@ -443,15 +452,61 @@ The problem here is the same as in newscast: messages will be dissemiated slower
 \chapter{Proposals}
 \label{chap:Proposals}
 
-Suppose we want to build a massive distributed collaborative editor(DCE) \cite{nedelec:hal-00921633}\cite{MassCollab} in a web browser using WebRTC to construct a peer-to-peer network.
-We want the DCE to support millions of concurrent users.
-The peer-to-peer approach will scale better than a traditional server-client-architecture like Google Docs (which only allows 50 users to work on one document) or Microsoft Word Online as there will not be a bottleneck.
-Nevertheless, a full graph is unreasonable as it will exhaust the peers when the number of participants is too big.
+\section{General Approach}
 
+Our research question states: \emph{What is the cheapest handshake gossip algorithm?}
+We consider an algorithm to be cheaper than another, if, on average, it employs less handshakes.
+This also counts the number of peers in an \emph{intermediate handshake}.
+We consider a handshake to be \emph{intermediate} if a peer $i$ cannot directly hoist a connection between two nodes $a$ and $b$ but instead needs to apply $m, m < 0$ intermediate nodes to establish a connection.
+This is neccessary due to the requirement to reduce the connections to a centralized signaling server as much as possible and, instead, use the decentralized peer-to-peer network to carry out the signalling service, as soon as a node is member of the system.
 
-TBD MORE 
+In a first step we use PeerSim\cite{Montresor_peersim:a} to evaluate the number of handshakes within the well-known algorithms.
+To do so, we need to adapt the algorithms accordingly.
+The algorithm that provides the best results will be implemented with WebRTC.
 
-Introduce the various ideas and proposals. As for the state-of-the-art, if this chapter is too long, split it into different chapters.
+The next step is the proposal of an improved algorithm that directly addresses the need for handshaking.
+Again, this algorithm is implemented in WebRTC and tested against the best algorithm from the PeerSim-evaluation.
+This tests are run on the Grid'5000 testbed using CREATE\cite{MassCollab} as a base implementation.
+
+\begin{figure}[!]
+   \centering
+   \setlength{\unitlength}{5cm}
+   \begin{picture}(1.2, 1.3)
+     \put(0, 0){\vector(1, 0){1.15}}
+     \put(1.17, -.015){$n$}
+     \put(0, 0){\vector(0, 1){1.15}}
+     \put(0, 1.19){\makebox(0, 0){$Handshakes$}}
+     \qbezier(0.0,0.0)(0.4128,0.0)(0.7218,0.618)
+     \qbezier(0.0,0.0)(0.4306,0.0)(0.7703,0.5662)
+     \qbezier(0.0,0.0)(0.4436,0.0)(0.8081,0.5207)
+     \qbezier(0.0,0.0)(0.4758,0.0)(0.9102,0.362)
+     \put(1, -.02){\line(0, 1){.04}}
+     \put(1, .06){\makebox(0, 0){$100.000$}}
+     \put(-.02, 1){\line(1, 0){.04}}
+     \put(.03, .98){$100.00$}
+   \end{picture}
+   \caption{Numbers of handshakes established by the signaling server}
+\end{figure}
+
+\begin{figure}[!]
+   \centering
+   \setlength{\unitlength}{5cm}
+   \begin{picture}(1.2, 1.3)
+     \put(0, 0){\vector(1, 0){1.15}}
+     \put(1.17, -.015){$n$}
+     \put(0, 0){\vector(0, 1){1.15}}
+     \put(0, 1.19){\makebox(0, 0){$Handshakes$}}
+     \qbezier(0.0,0.0)(0.4128,0.0)(0.7218,0.618)
+     \qbezier(0.0,0.0)(0.4306,0.0)(0.7703,0.5662)
+     \qbezier(0.0,0.0)(0.4436,0.0)(0.8081,0.5207)
+     \qbezier(0.0,0.0)(0.4758,0.0)(0.9102,0.362)
+     \put(1, -.02){\line(0, 1){.04}}
+     \put(1, .06){\makebox(0, 0){$100.000$}}
+     \put(-.02, 1){\line(1, 0){.04}}
+     \put(.03, .98){$100.00$}
+   \end{picture}
+   \caption{Numbers of handshakes established by the signaling service inside the peer-to-peer network}
+\end{figure}
 
 \section{Proposal 1}
 
@@ -770,7 +825,8 @@ Figure~\ref{fig:Planning} introduce the planning that has been build week after 
 
 \begin{figure*}
    \centering
-      \emph{<Insert a Gantt's diagram.>}
+         %\rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD1}}
+   \rotatebox{270}{\includegraphics[width=22cm]{Images/gantt}}
    \caption{Planning}
    \label{fig:Planning}
 \end{figure*}
@@ -782,9 +838,9 @@ Discuss differences between the drafting and the planning as well as lessons lea
 
 This appendix is \emph{mandatory}.
 
-\begin{fichesuivi}{September 13, 2010}{September 18, 2010}
-   \tempstravailA{2}{30}
-   \tempstravailB{3}{45}
+\begin{fichesuivi}{September 29, 2014}{September , 2010}
+   \tempstravailA{6}{00}
+   \tempstravailB{0}{00}
 
    \begin{travaileffectue}
       \begin{itemize}
