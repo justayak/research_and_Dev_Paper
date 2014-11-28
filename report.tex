@@ -19,7 +19,7 @@
 \subtitle{Handshaking in Gossip Protocols}
 
 \authorA{Julian}{Tanke}
-\authorB{Julian}{Tanke}
+\authorB{}{}
 \supervisor{José}{Martinez}
 \cosupervisor{Pascal}{Molli}
    % In case, there are more than two supervisors, use the following trick:
@@ -86,8 +86,8 @@ LSEQ and A Scalable Encoding for Massive Collaborative Editing
 % 1:Motivation - why interesting and important for larger community?
 
 Many efforts have been devoted to establish data connections between browsers using the WebRTC API\cite{webrtc}.
-Services like PeerCDN\cite{peercdn}, webtorrent\cite{webtorrent} or Sharefest\cite{sharefest} demonstrate how decentralized services now can be easily deployed in web browsers.
-This improves the user experience drastically as users can now download a torrent as easy as watching a youtube video.
+Services like PeerCDN\cite{peercdn}, webtorrent\cite{webtorrent} or Sharefest\cite{sharefest} demonstrate how decentralized services now can be deployed easily in web browsers.
+This improves the user experience drastically as users can download a torrent as easy as watching a youtube video.
 However, current solutions do not provide a scalable broadcast.
 This, however, is essential for other applications such as distributed collaborative editors or distributed social networks.
 Traditionally, gossip protocols are used to implement broadcast in decentralized infrastructure.
@@ -96,20 +96,17 @@ Peers are highly autonomous and independent, which allows the algorithms to be s
 This protocols can easily scale to millions of peers which can join and leave without significantly disrupting the service.
 
 % 2:What is the specific problem? and background
-This raise the problem of deploying gossip algorithms on WebRTC.
+This raises the problem of deploying gossip algorithms on WebRTC.
 Many gossip protocols build up upon the premise that the peers can interconnect easily with each other and, as such, constantly connect to new sets of peers\cite{Voulgaris05cyclon:inexpensive}\cite{Jelasity:2004:PSS:1045658.1045666}.
-Unfortunatly, certain efforts must be taken to establish a peer-to-peer connection with WebRTC.
-For establishing a peer-to-peer connection under WebRTC, however, certain efforts must be taken.
-To set up a connection between peers, they need to perform a handshake, consisting of an offer by one client and an responding answer by the other.
-
-
-The constant need for handshaking makes the system less scalable as gossip protocols usually promisses.
+Unfortunatly, certain efforts must be taken to establish a peer-to-peer connection with WebRTC:
+a handshake, consisting of an offer by one client and a responding answer by the other, must be performed.
+This process must be hoist by a well-known service in between, which we will call the \emph{signaling service}.
+Furthermore, the handshake radically changes the communication complexity as connecting to new peers becomes more expansive and error-prone.
 
 % 3:summarize main contributions. What is the general approach taken? Why significant? MUST BE GOOD!
 
-In this report we show that \textbf{===WE DONT KNOW YET!(SCAMP vs CYCLON vs NEWSCAST vs SELF)===}.
-Furthermore, we show that the handshake mechanics can be transferred to the peer-to-peer system.
-This reduces the use of the global signalling service to a minimum, as it will be used only to introduce completely new nodes to the system.
+In this report we evaluate the cost of current gossip algorithms in a WebRTC infrastructure.
+We propose a new algorithm that minimizes the number of connections to the well-known signaling service and instead hosts the handshaking inside the protocol.
 
 % 4:High level: what are the differences to what others have done. Reader must know whats new about this work
 % to compare to other work in the area
@@ -120,11 +117,51 @@ However, this protocols assume that a connection can be established with direct 
 % 5:structure
 
 The remainder of this paper is structured as follows: 
-Chapter~\ref{chap:StateOfTheArt} studies a number of gossip protocols and introduces the basic technology. 
+Chapter~\ref{chap:Motiv} explains the technology in more depth and provides an example application. 
+Chapter~\ref{chap:StateOfTheArt} studies a number of gossip protocols. 
 In Chapter~\ref{chap:Proposals} we will introduce an example application. 
 Furthermore we will outline the requirements for a handshaking gossip protocol.
 Chapter~\ref{chap:Experiments} follows a development, experiment, and analysis path in order to quantify the theoretical results.
 Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.
+
+%-------------------------------------------------------------------------------------------------------------
+
+\chapter{Background and Motivation}
+\label{chap:Motiv}
+
+\section{WebRTC}
+
+Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browsers \cite{webrtc}.
+It is an implementation of SRTP\footnote{Secure Real-time Transport Protocol} with an SDP\footnote{Sockets Direct Protocol} control mechanism on top that can use STUN, TURN and ICE for NAT traversal.
+
+\textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plugins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
+
+As we are interested in sending arbitrary data beween peers we will focus on the DataChannel API.
+Unfortunately WebRTC cannot create a connection between peers without a signaling service. 
+That means that we need some sort of communication exchange (Handshake) prior to the direct peer-to-peer connection.
+Figure~\ref{fig:webrtc} demonstrates how a connection is established in WebRTC:
+
+\begin{enumerate}
+    \item{Alice needs to find out her public internet address and her network setup (Routers, Firewall).
+To obtain this information, she queries a well-known STUN-Server.}
+    \item{To establish a connection with Bob, she now needs to create an offer and send it to the signaling service.}
+    \item{The signaling service selects Bob and forwards Alice's offer to him.}
+    \item{We assume, that Bob already know his network setup (as he called a STUN-Server before).
+Bob accepts the request that Alice sends to him and wants to communciate. To do so he must create an answer and send it back to Alice. As Bob does not know how to connect to Alice yet, he sends the answer to the signaling service instead.}
+    \item{The signaling service sends the answer back to Alice.}
+    \item{Upon receiving Bob's positive answer, Alice sends a description of how the communication will be done and how Bob can send data to her. As she does not know how to directly connect to Bob yet, she sends this information to the signaling service.}
+    \item{The signaling service forwards Alice's connection information to Bob.}
+    \item{Bob checks if he can communicate in any way that Alice suggested, and, if he can, he describes how to connect directly to him. Again, this message is send to Alice through the signaling service.}
+    \item{Alice gets the information from Bob and establishes a link to him. From now on they can communicate directly with each other. }
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=8cm]{Images/WebRTC}
+    \caption{Examplary WebRTC connection}
+    \label{fig:webrtc}
+\end{figure}
+
 
 %-------------------------------------------------------------------------------------------------------------
 
@@ -366,21 +403,6 @@ As in SCAMP and newscast, if a node wants to join the network, it needs to know 
         \EndProcedure
     \end{algorithmic}
 \end{algorithm}
-
-
-\section{WebRTC}
-
-Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browsers \cite{webrtc}.
-It is an implementation of SRTP\footnote{Secure Real-time Transport Protocol} with an SDP\footnote{Sockets Direct Protocol} control mechanism on top that can use STUN, TURN and ICE for NAT traversal.
-
-\textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plugins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
-
-As we are interested in sending arbitrary data beween peers we will focus on the DataChannel API.
-Unfortunately WebRTC cannot create a connection between peers without a signaling service. 
-That means that we need some sort of communication exchange (Handshake) prior to the direct peer-to-peer connection.
-For WebRTC this could be a Websocket server.
-
-\includegraphics[width=8cm]{Images/WebRTC}
 
 %\section{Synthesis}
 
