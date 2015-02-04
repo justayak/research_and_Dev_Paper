@@ -123,19 +123,18 @@ Furthermore, we propose an algorithm that combines the good properties of CYCLON
 
 Gossip protocols that are designed for the internet have already been introduced by \cite{Ganesh:2003:PMM:642778.642782} and\cite{Voulgaris03arobust}.
 However, this protocols assume that a connection can be established with direct addressing, ignoring the limitations mentioned above.
+On the other side there are implementations of peer-to-peer networks on top of WebRTC\footnote{http://peerjs.com/} already available. 
+Nonetheless they lack truly massive scalability as they rely on a single centralized signaling service to host and maintain the network.
+Our contribution is an algorithm that is truly scalable in a WebRTC environment.
 
 \section{Report organisation}
 
-As soon as the overall picture has been drawn, the logical organisation of the report is described chapter by chapter.  The goal is to provide the reader with a detailed abstract of the whole report without having to read the introduction of each chapter. In addition, you can provide hints on the way the report can be read by different kinds of audience, e.g., skipping some chapters, changing the order, going first to the appendix, etc.
-
-Roughly speaking, the report is probably to be split into three main parts.
-
-Chapter~\ref{chap:StateOfTheArt} studies related proposals of the scientific literature.  Analysing and comparing them help both to understand the limitations and to open new research directions.
-
-Chapter~\ref{chap:Proposals} studies, from the theoretical point of view, one or even several promising directions.  The consequences of the established and chosen hypotheses are pursued to the point only experiments can give satisfying answers.
-
+The remainder of this paper is structured as follows: 
+Chapter~\ref{chap:Motiv} explains the technology in more depth and provides an example application. 
+Chapter~\ref{chap:StateOfTheArt} studies a number of gossip protocols. 
+In Chapter~\ref{chap:Proposals} we will introduce an example application. 
+Furthermore we will outline the requirements for a handshaking gossip protocol.
 Chapter~\ref{chap:Experiments} follows a development, experiment, and analysis path in order to quantify the theoretical results.
-
 Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.
 
 
