@@ -7,17 +7,19 @@
 
 % some definitions for the actual contents
 \usepackage{enumerate}
+\usepackage{color}
 \usepackage{amsmath, amssymb}
-\usepackage{algorithm}
-\usepackage{algorithmic}
+\usepackage{algorithm,algpseudocode}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
 
 \begin{document}
 
 \title{A Polytech Research Report}
 \subtitle{A Model and Short Guide}
 
-\authorA{}{}
-\authorB{Alter}{Ego}
+\authorA{Julian}{Tanke}
+\authorB{}{}
 \supervisor{Pascal}{Molli}
 \cosupervisor{Brice}{Nedelec}
    % In case, there are more than two supervisors, use the following trick:
@@ -131,12 +133,57 @@ Our contribution is an algorithm that is truly scalable in a WebRTC environment.
 
 The remainder of this paper is structured as follows: 
 Chapter~\ref{chap:Motiv} explains the technology in more depth and provides an example application. 
-Chapter~\ref{chap:StateOfTheArt} studies a number of gossip protocols. 
-In Chapter~\ref{chap:Proposals} we will introduce an example application. 
+Chapter~\ref{chap:StateOfTheArt} studies the gossip protocols CYCLON and SCAMP. 
+In Chapter~\ref{chap:Proposals} we will introduce an example application.
 Furthermore we will outline the requirements for a handshaking gossip protocol.
 Chapter~\ref{chap:Experiments} follows a development, experiment, and analysis path in order to quantify the theoretical results.
 Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.
 
+%-------------------------------------------------------------------------------------------------------------
+\chapter{Background and Motivation}
+\label{chap:Motiv}
+
+\section{WebRTC}
+
+Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browsers \cite{webrtc}.
+It is an implementation of SRTP\footnote{Secure Real-time Transport Protocol} with an SDP\footnote{Sockets Direct Protocol} control mechanism on top that can use STUN, TURN and ICE for NAT traversal.
+
+\textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plug-ins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
+
+As we are interested in sending arbitrary data between peers we will focus on the DataChannel API.
+Unfortunately WebRTC cannot create a connection between peers without a signaling service. 
+That means that we need some sort of communication exchange (Handshake) prior to the direct peer-to-peer connection.
+Figure~\ref{fig:webrtc} demonstrates how a connection is established in WebRTC:
+
+\begin{enumerate}
+    \item{Alice needs to find out her public Internet address and her network setup (Routers, Firewall).
+To obtain this information, she queries a well-known STUN-Server.}
+    \item{To establish a connection with Bob, she now needs to create an offer and send it to the signaling service.}
+    \item{The signaling service selects Bob and forwards Alice's offer to him.}
+    \item{We assume, that Bob already knows his network setup (as he called a STUN-Server before).
+Bob accepts the request that Alice sends to him and wants to communicate. To do so he must create an answer and send it back to Alice. As Bob does not know how to connect to Alice yet, he sends the answer to the signaling service instead.}
+    \item{The signaling service sends the answer back to Alice.}
+    \item{Upon receiving Bob's positive answer, Alice sends a description of how the communication will be done and how Bob can send data to her. As she does not know how to directly connect to Bob yet, she sends this information to the signaling service.}
+    \item{The signaling service forwards Alice's connection information to Bob.}
+    \item{Bob checks if he can communicate in any way that Alice suggested, and, if he can, he describes how to connect directly to him. Again, this message is send to Alice through the signaling service.}
+    \item{Alice gets the information from Bob and establishes a link to him. From now on they can communicate directly with each other. }
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=9cm]{Images/WebRTC}
+    \caption{Examplary WebRTC connection}
+    \label{fig:webrtc}
+\end{figure}
+
+\section{Massive Collaborative Editing}
+
+One application for a gossip-based WebRTC network is a massive collaborative editor \cite{nedelec:hal-00921633}\cite{MassCollab} that runs in the web browser.
+Unlike current solutions such as Google Docs, Microsoft Word Online or Etherpad we want to support millions of users on one document (e.g. Google Docs only allows 50 users to work on one document).
+\cite{MassCollab} describes how parallel editing can scale well with the number of users, implied that some sort of broadcast exists.
+However, no assumptions are made about how this broadcast is done.
+A centralized service or a fully connected graph do not scale well with the user count.
+Instead, using the proposed gossip-based peer-to-peer protocol for WebRTC will make the application more scalable and robust.
 
 %-------------------------------------------------------------------------------------------------------------
 
@@ -148,57 +195,233 @@ Finally, the conclusion summarises the work and introduce new research issues th
 \chapter{State of the Art}
 \label{chap:StateOfTheArt}
 
-The goal of this chapter is to give the necessary provision to understand and \emph{solve} the research problem.  In particular, you should not solve an already well-solved problem!  Neither should you reinvent solutions to basic sub-problems.  Should you find a solution to your original problem in the literature, then either a new/extended problem has to be designed according to this new knowledge, or a substantially different and/or better solution designed.
+This chapter introduces fundamental algorithms and concepts. 
 
-Notice that most of the conclusions in this chapter must be taken with a grain of salt.  Oversights are always possible.  However, if \emph{very} recent or confidential contributions can be missed, the more established literature has to be known to some depth.  Some general background can be omitted from this chapter and put into Appendix~\ref{app:Reminder}.
+\section{Gossip Protocol}
 
-The chapter is most probably a sequence of previous proposals along with an analysis and comparison with respect to a set of criteria that have to be adequately designed.  The final conclusion of this chapter is some kind of table along with initial motivations for the proposed new solutions that will be discussed in chapters~\ref{chap:Proposals} and~\ref{chap:Experiments}.
+Gossip, also revered to as \emph{epidemic dissemination}, is a  communication protocol initially inspired by observing of how gossips spread in social networks or how diseases spread over a population.
+It trades reliability guarantees against scalability properties \cite{Eugster:2003:LPB:945506.945507} and it has been applied to various large scale systems, with the purpose of information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470}, network management \cite{conf/dsom/VoulgarisS03} and many more.
 
-If this chapter tends to be too lengthy and clumsy, then split it into several chapters and create a part.
+The basic idea behind gossip works as follows:
+a network is a graph $G=(V,E)$ where $V=\{1,...,n\}$ is a set of $n$ nodes.
+Let $E \subset V \times V$ denote neighboring\footnote{In this paper, nodes are considered neighbors if they are directly connected to each other} nodes and let $d_i$ denote the degree of node $i$ in $G$ where 
+$d_i$ is constrained by the configuration parameter $c \in \mathbb{Z}_{>0}$ which is called Fanout.
+The Fanout defines the number of nodes that are selected when a message is broadcast from a node.
+A high value generates a lot of redundant messages while being more fault tolerant and reliable. 
+$V$ and $E$ constantly change as nodes leave and join the network and nodes update there neighbors to maintain a uniform distribution.
 
-Notice that it is in this chapter that you must adequately and honestly refer to all the work that you consulted.  In the following chapters, whenever and idea is not yours, you must again reference the source.  If this guidelines are not obeyed, you are committing plagiarism!
+Assuming a node $i$ wants to broadcast a message $m$ - It sends $m$ to its $d_i$ neighboring nodes. 
+A receiving node $j$ evaluates if it already knows $m$ \cite{Koldehofe03buffermanagement} - and if not, it will repeat the previous procedure: broadcast to its $d_j$ neighboring nodes and so forth. 
+Usually three types of epidemic dissemination of messages can be distinguished:
+\begin{itemize}
+    \item \textbf{Push:} When receiving a message, a node sends it to all other nodes in its view.
+    \item \textbf{Pull:} A node periodically queries one random other node to check for messages it has not received yet.
+    \item \textbf{Push-Pull:} A node sends a message to another random peer and, additionally, queries said peer for data.
+\end{itemize}
 
-Also note that the bibliography consists only of \emph{permanent} references, i.e., conference proceedings, journals, books, etc.  All the ``details,'' authors, title, journal or conference name, volume, number, pages, place, year, etc., have to be provided to their full extent, as exemplified in the fake bibliography of this model. They can be extended with references on the Web, which is appreciable for rapidly downloading a version of the reference work.
+When $n$ is very large, for a given node $i$ it applies that $d_i << n$.
+This is necessary for scalability reasons as, otherwise, the list of neighbors might exhaust a nodes memory and maintaining the list in presence of churn\footnote{Nodes constantly join and leave the network} would be too expansive.
+We will call $\mathcal{N}_i \equiv \{j\in V:(i,j)\in E\}$ the \textbf{partial view} of $i$.
+The partial view should consist of a random sample of $V$.
 
-In contrast, web sites alone must not be placed into the bibliography because they may rapidly disappear or be substantially modified after your reading.  However, you can mention them as footnotes.%
-\footnote{For instance, the ``reference'' \cite{Wolfe} should really be located here: Joe  \textsc{Wolfe}, \emph{How to Write a PhD Thesis}, 1996, \url{http://www.phys.unsw.edu.au/~jw/thesis.html}}
-In case they provide an important thought for your work, it is advisable to put a copy of them in the appendix after having obtained the authorisation of their author.
+\section{Peer Sampling Service}
 
-\section{Previous Proposal 1}
+The peer sampling service \cite{Jelasity:2004:PSS:1045658.1045666}, or, random peer sampling (RPS), is a membership protocol.
+The purpose of RPS is to provide each peer with a \emph{uniform sample} of $V$ in a distributed and scalable manner.
+It can be used in a variety of gossip-based protocols, for example in topology management \cite{Jelasity:2009:TGF:1570533.1570626}. 
+The peer sampling service consists of a simple API:
 
-Presentation and analysis of previous work related to your topic.
+\begin{itemize}
+    \item{\textbf{init:}} Initializes the service on a given node if this has not been done before. This is implementation dependent.
+    \item{\textbf{getPeer:}} Returns a peer address if the network contains more than one node. The returned address is a sample drawn from the group. This method can also be used to return multiple random peers, either by providing a paramter $n$ to the function or by simply calling the method multiple times.
+\end{itemize}
 
-\section{Previous Proposal 2}
+There are two strategies to maintain partial views in peer sampling services \cite{Leitao_gossip-basedbroadcast} that will play an important role in our evaluation:
 
-Etc.
+\begin{itemize}
+    \item{\textbf{Reactive:} The partial view only changes when $V$ changes (Nodes join or leave) and remains stable otherwise.
+An example algorithm is SCAMP \cite{Ganesh:2001:SPL:648089.747488}.}
+    \item{\textbf{Cyclic:} The partial view is periodically updated every $\bigtriangleup T$ time units and membership information are exchanged with neighbors.
+An example algorithm is CYCLON \cite{Voulgaris05cyclon:inexpensive}.}
+\end{itemize}
+
+\section{SCAMP}
+
+The probabilistic scalable membership protocol (SCAMP)\cite{Ganesh:2001:SPL:648089.747488} is a reactive peer sampling service.
+The size of its local views adapt automatically to a desired value of $(c+1)\log{n}$ where $c$ is a  parameter which specifies the degree of robustness to failure(\cite{Kermarrec:2003:PRD:766617.766623}, \emph{Theorem 1}).
+It maintains two separated partial views\cite{Ganesh:2003:PMM:642778.642782}, one for receiving gossip messages (InView $\mathcal{N}^{in}$), one for sending gossip messages (PartialView $\mathcal{N}^{out}$).
+
+If a new node $k$ wants to join the network $G(V,E)$ it needs to have one member $i \in V$ in $\mathcal{N}_k^{out}$ and send a subscription request to $i$.
+On receiving a subscription request, $i$ forwards the new peer to all members of its own $\mathcal{N}_i^{out}$, and, additionally, creates $c$ copies of the new subscription and forwards them to randomly chosen nodes in $\mathcal{N}_i^{out}$.
+On receiving a forwarded subscription for node $k$, a receiving node $j$ integrates $k$ into its $\mathcal{N}_j^{out}$ with probability $p$ which depends on the size of $\mathcal{N}_j^{out}$ ($p_i=\frac{1}{1+|\mathcal{N}_i^{out}|}$). 
+If $j$ does not integrate $k$, it forwards it to another randomly chosen peer from its $\mathcal{N}_j^{out}$.
+When a node $i$ decides to keep the subscription of a node $j$, it integrates $j$ into its $\mathcal{N}_i^{out}$ and notifies $j$ to put $i$ into its $InView_j$.
+On leaving the network, the leaving node $j$ sends a \emph{replace request} containing a peer from its $\mathcal{N}_j^{out}$ to $|\mathcal{N}_j^{in}|-c$ peers in its $\mathcal{N}_j^{in}$ and a \emph{deleting request} to the remaining ones.
+When a node $i$ receives the \emph{replace request} from $j$, it will replace $j$ for the sent peer in its $\mathcal{N}_i^{out}$.
+
+A subscription has a finite lifetime called \emph{lease}\footnote{The lease is implementation dependent: it could be set individually or it could be set globally}.
+When expired, the subscribed node will be removed from all PartialViews.
+It is a nodes responsibility to resubscribe once its subscription expires.
+This mechanic ensures that failed nodes will not remain in the network.
+Furthermore, the lease mechanism rebalances the network making it more robust.
+Indeed, when a peer joins the system, it only has one node in its partial view, which makes it vulnerable to failures.
+However, when peers resubscribe, it adds the link to its inView and therefore, to others partial view.
+Hence, even the new peers get subscription requests.
+
+Pseudocode: \cite{Ganesh:2001:SPL:648089.747488}, Section 2.1
+\begin{algorithm}
+    \caption{Subscription management}
+    \begin{algorithmic}[1]
+        \Procedure{OnSubscribe}{$subscriber$}
+        \For{each $peer$ in $\mathcal{N}^{out}$}
+        \State send \textbf{forwardedSubscription} with $subscriber$ to $peer$
+        \EndFor
+        \For{each $peer$ in sample($\mathcal{N}^{out}$, $c$)}
+        \State send \textbf{forwardedSubscription} with $subscriber$ to $peer$
+        \EndFor
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+    \caption{Handling of a forwarded subscription}
+    \begin{algorithmic}[1]
+        \Procedure{OnForwardedSubscription}{$subscriber$}
+        \State $keep \gets$ randomChoiceBetween0and1()
+        \State $keep \gets \lfloor (|\mathcal{N}^{out}| + 1) * keep \rfloor$
+        \If{$keep \equiv 0 $ and $subscriber \notin \mathcal{N}^{out}$}
+        \State 
+        \State // potentially very expensive as the handshake must be traced over
+        \State // possibly many hops
+        \State $\mathcal{N}^{out} \gets \mathcal{N}^{out} \cup \{subscriber\}$
+        \State
+        \Else
+        \State $peer \gets$ sample($\mathcal{N}^{out}$, $1$)
+        \State send \textbf{forwardSubscription} with $subscriber$ to $peer$
+        \EndIf
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{Indirection}
+
+In Scamp, good scaling behavior is ensured when new nodes select their entry point uniformly random among the existing members\footnote{\cite{Ganesh:2001:SPL:648089.747488}, 3.1}.
+However, in reality this is seldom the case. Instead it can be expected that few nodes will be designated entrances into the network.
+To ensure a random distribution under this circumstances SCAMP introduces \emph{indirection} where the initial entrance node forwards the subscribers request to a node that is approximately chosen at random among the existing nodes.
+This is done by a random walk\footnote{the exact algorithm is out of the scope of this report} of length $\log{n}$ which is the expected diameter of the graph.
+
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
+\section{CYCLON}
+
+CYCLON \cite{Voulgaris05cyclon:inexpensive} is a cyclic peer sampling service.
+Each peer maintains a partial view of size $c$ and repeatedly exchanges its view with a neighbor - this operation is called a shuffle.
+The protocol works as follows\footnote{Enhanced Shuffling, described in \cite{Voulgaris05cyclon:inexpensive}}:
+
+Every $\bigtriangleup T$ time unit a node $i$ executes the shuffle function:
+
+\begin{enumerate}
+    \item{Increase by one the age of all neighbors.}
+    \item{Select neigbor $j$ with the highest age among all neighbors, and $l-1$\footnote{$1 \le l \le c$}} other random neighbors.
+    \item{Replace $j$'s entry with a new enty of age 0 and with $i$'s address.}
+    \item{Send the updated subset to peer $j$}
+    \item{Receive from $j$ a subset of no more than $t$ of its own entries.}
+    \item{Discard entries pointing at $j$ and entries already contained in $i$'s partial view.}
+    \item{Update $i$'s partial view to include all remaining entries, by firstly using empty slots (if any), and secondly replacing entries among the ones sent to $j$}
+\end{enumerate}
+
+On receiving the shuffle request from $i$ at $j$, $j$ sends back a random subset of $l$ of its neighbors and updates its own partial view with the sent data but it does not increase the age of the items in the partial view.
+When a node $i$ does not get a response from a node $j$ after it sent a shuffle request it will discard node $j$ from its partial view as it seems to be failed. 
+Because of this, failed nodes will be removed from the network in bounded time.
+As in SCAMP, if a node wants to join the network, it needs to know another node that is already part of it.
+
+\begin{algorithm}[H]
+    \caption{Active}
+    \begin{algorithmic}[1]
+        \While{termination condition not reached}
+        \State wait $\bigtriangleup T$
+        \State $partialView \gets$ increaseAge($partialView$)
+        \State $peer \gets$ max(orderByAge($partialView$))
+        \State $rand \gets $ sample($partialView \backslash \{peer\}$ , $l-1$) $\cup \{$[addr:$ownAddress$, age:$0$]$\}$
+        \State send $rand$ to $peer$
+        \State $otherRand \gets $ receive from $peer$
+        \State $otherRand \gets otherRand \backslash \{partialView \cup \{[addr:ownAddress, age:*]\}\}$
+        \State $partialView \gets partialView \backslash rand$
+        \State
+        \State // this part is very expensive with handshake
+        \State $partialView \gets partialView \cup otherRand$
+        \State
+        \While{$|partialView| < c$}
+        \State // shift removes the first element of an list
+        \State $partialView \gets shift(orderByAge(rand))$
+        \EndWhile
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+    \caption{Passive}
+    \begin{algorithmic}[1]
+        \Procedure{OnExchange}{$peer$, $otherRand$}
+        \State $rand \gets$ sample($partialView$, $l$)
+        \State send $rand$ to $peer$
+        \State $otherRand \gets otherRand \backslash partialView$
+        \State $partialView \gets partialView \backslash rand$
+        \State
+        \State // this part is very expensive with handshake
+        \State $partialView \gets partialView \cup otherRand$
+        \State
+        \While{$|partialView| < c$}
+        \State // shift removes the first element of an list
+        \State $partialView \gets shift(orderByAge(rand))$
+        \EndWhile
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
+
+
+
+
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
 
 \section{Synthesis}
 
-\begin{table*} % Use the starred version if the table is too large for a two-column document (screen version)
-    \begin{center}
-        \begin{tabular}{c|ccccc}
-                         & Proposal 1 & \ldots & Proposal $i$ & \ldots & Proposal $n$ \\
-            \hline
-            Criteria $1$ & $\surd$    &        &              &        & $\surd$      \\
-            \ldots       & \ldots     & \ldots & \ldots       & \ldots & \ldots       \\
-            Criteria $j$ & $\approx$  &        &              &        &              \\
-            \ldots       & \ldots     & \ldots & \ldots       & \ldots & \ldots       \\
-            Criteria $m$ &            &        & $\surd$      &        &              \\
-        \end{tabular}
-    \end{center}
-    \caption{Comparison of various proposals}
-    \label{tab:ProposalsComparison}
-\end{table*}
 
-A clear view of the advantages and disadvantages of the partial solutions found in the literature can be summarised by one or several tables (cf.\ table~\ref{tab:ProposalsComparison}) where a number of important criteria have been introduced and described.
+
+\begin{tabular}{l | c r }
+ properties & SCAMP & CYCLON \\
+  \hline
+  adaptive size & \textcolor{green}{Yes} & \textcolor{red}{No} \\
+  close proximity to neighbors & \textcolor{red}{No} & \textcolor{green}{Yes} \\
+  \label{tab:Comparison}
+\end{tabular}
+
+A clear view of the advantages and disadvantages of the partial solutions found in the literature can be summarized by one or several tables (cf.\ table~\ref{tab:ProposalsComparison}) where a number of important criteria have been introduced and described.
+
 
 Note that all figures, tables, and algorithms must be put into their corresponding floating environments, captioned, referenced from the main text, and sourced if they have been copied from previous work.
 
 \section{Conclusion}
 
-By the end of this bibliographic work, some previous proposals can give explanations about the difficulty of the task, some others hints for further promising investigations, some even for avoiding dead-ends.
+All of the mentioned algorithms have certain problems and limitations when handshaking is added.
+In newscast the value of $\bigtriangleup T$ must be higher than the time the peers need to connect.
+This could be implemented by setting $CONNECTION-TIMEOUT < \bigtriangleup T$.
+This will, possibly significantly, increase the time a news will take to be fully disseminated into the network.
 
-The promising directions and the motivations for following them can then be listed before going to the detailed descriptions of the proposed new solutions in the following chapter(s).
+SCAMP will face the need for a much more complex algorithm as it needs to provide a routed signalling service over possibly many nodes.
+A way to repair a route in case of node-failure must be found as SCAMP would otherwise be extremly unstable.
+
+CYCLON faces similar issues as newscast and can, accordingly, be modified to fullfill the basic needs for handshaking (set $\bigtriangleup T$ higher than the connection timeout).
+The problem here is the same as in newscast: messages will be dissemiated slower.
+
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
+
 
 %--------------------------------------------------------------------------------
 
