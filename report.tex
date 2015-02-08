@@ -359,6 +359,7 @@ As in SCAMP, if a node wants to join the network, it needs to know another node 
         \EndWhile
         \EndWhile
     \end{algorithmic}
+    \label{alg:cyclon1}
 \end{algorithm*}
 
 \begin{algorithm*}[!htbp]
@@ -379,6 +380,7 @@ As in SCAMP, if a node wants to join the network, it needs to know another node 
         \EndWhile
         \EndProcedure
     \end{algorithmic}
+    \label{alg:cyclon2}
 \end{algorithm*}
 
 
@@ -424,7 +426,7 @@ We show that, other than that, the protocol remains relatively stable and perfor
 
 SCAMP, on the other hand, must employ more complex engineering as its connecting contract is much more complicated.
 The added complexity for SCAMP is not constant but rather depending on the network size.
-This results in SCAMP being more fragile which is even increased by its lease-mechanism. 
+This results in SCAMP being more fragile which is even increased by its lease-mechanism which can be shown in our experiments (\ref{fig:f_scamp1}).
 
 
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
@@ -613,89 +615,127 @@ After the hurdle of introduction is solved, handshaking will play only a minor r
 \label{chap:Experiments}
 
 All simulations were conducted using PeerSim Simulator\footnote{http://peersim.sourceforge.net/}. 
-Existing implementations of CYCLON and SCAMP could be used and adapted for the handshaking-based simulation.
+Existing implementations of CYCLON and SCAMP could be used and adapted for handshaking-based simulation.
 
-The first part of the experiments revolve around handshaking with CYCLON and SCAMP while the second part of the  experiments compares the new algorithm SCAMPLON with CYCLON.
+The first part of the experiment revolves around handshaking with CYCLON and SCAMP while the second part of the  experiments compares the new algorithm SCAMPLON with CYCLON.
+
+We define a \emph{cycle} to be the time period during which all nodes executed one gossiping function, which are defined more precisely in Algorithm \ref{alg:scamp1}, \ref{alg:scamp2}, \ref{alg:cyclon1}, \ref{alg:cyclon2}, \ref{alg:scamplon1} and \ref{alg:scamplon2}.
+From this follows that it takes two cycles in CYCLON to complete a shuffle - the first cycle handles the shuffle initialization (\ref{alg:cyclon1}), the second cycle handles the shuffle response (\ref{alg:cyclon2}).
+SCAMP on the other hand needs a minimum of three cycles to complete a subscription: the first cycle handles indirection, the second one the subscription (\ref{alg:scamp1}) and the last one handles the multiple forwarded subscriptions (\ref{alg:scamp2}).
+However, SCAMP`s subscription can easily consume more than three cycles as both recursive functions, indirection as well as forward, greatly depend on the network size and thus may include more hops and, as such, more cycles.
+
+Peers communicate between each other with messages.
+We also test the behavior of the algorithms against a specific failing quota of these messages meaning that a certain percentage of them will not reach their target peer.
+With this experiments we hope to get some insight into the failure resistance of the different protocols. 
 
 \section{Handshaking}
 
 In this section we will compare SCAMP and CYCLON with their handshaking counterparts.
 We want to evaluate how handshaking influences the algorithms properties.
 Furthermore, we want to find out what error rates can be tolerated by the handshaking implementations.
-The experiments with CYCLON are done with $c = 20$ and $l = 5$ while the experiments with SCAMP are done with $c=2$.
+The experiments with CYCLON are done with $c = 20$ and $l = 8$ while the experiments with SCAMP are done with $c=2$.
 All simulations where run with $1000$ nodes.
+The network is initialized as a line, that means: $n_0$ is connected to $n_1$ is connected to $n_2$ and so on.
 
 \subsection{Convergence}
 
+We want to evaluate how fast SCAMP and CYCLON converge to their ideal properties, given that both algorithms are initialized in non-optimal ways.
+
+We use two metrics to determine if a network is converged or not: the \emph{clustering coefficient} and the \emph{average path length}.
+In the following we describe the experiments in more detail:
+
+\subsubsection{Clustering Coefficient}
+
+% OBJECTIVE
 The \emph{clustering coefficient} is a measure for a graphs tendency to contain cliques as well as for its transitivity.
 We calculate the average clustering coefficient by summing together all local clustering coefficients and dividing by the number of nodes $n$. 
 
 $\bar{C} = \frac{1}{n}\sum\limits_{i=1}^{n} C_i$
 
-The local clustering coefficient defines how close a node and its immediate neighbors are to be a clique.
+% DESCRIPTION
+
+The local clustering coefficient $C_i$ defines how close a node and its immediate neighbors are to be a clique.
 
 In general, it is not desired for a peer-to-peer network to have a high average clustering coefficient as it weakens the connectivity of the cluster to the rest of the graph which increases the chance of partitioning.
 Another disadvantage of a highly clustered network is that information dissemination will be more redundant.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_cluster}
-    \caption{average clustering of the CYCLON protocol (no failure)}
-    \label{fig:cluster_cyclon}
-\end{figure}
+% RESULT
+
+Figure \ref{fig:cluster_cyclon3} show the average clustering coefficient with CYCLON, run over $2500$ cycles. The x-axis shows the average cluster coefficient while the y-axis shows the number of cycles.
+When no network errors occur, both implementations, with and without handshaking, behave very similar.
+It should be noted that the handshaking algorithm converges towards a slightly higher limit than the non-handshaking version.
+When network errors are introduced, the handshaking variant degrades faster than the non-handshaking version.
+As handshaking needs more hops, heck has more sources of error, this is an expected result.
+However, it can be stated that handshaking CYCLON behaves robust and very similar to its non-handshaking counterpart.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_clusterX_f10}
-    \caption{average clustering of the CYCLON protocol (10\% failure)}
-    \label{fig:cluster_cyclon2}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_cluster_fail_40X}
-    \caption{average clustering of the CYCLON protocol (40\% failure)}
+    \includegraphics[width=9cm]{Images/statistics/cyclon_1000_c20/all}
+    \caption{average clustering of the CYCLON protocol.
+    The x-axis denotes the number of cycles while the y-axis denotes the cluster coefficient.}
     \label{fig:cluster_cyclon3}
 \end{figure}
 
-\subsubsection{CYCLON}
 
-Figure \ref{fig:cluster_cyclon}, Figure \ref{fig:cluster_cyclon2} and Figure \ref{fig:cluster_cyclon3} show the average clustering coefficient with CYCLON, run over $500$ cycles. The x-axis shows the average cluster coefficient while the y-axis shows the number of cycles.
+% REASON
 
-When no network errors occur, both implementations, with and without handshaking, behave very similar.
-It should be noted that the handshaking algorithm converges towards a slightly higher limit than the non-handshaking version.
-
-When network errors are introduced, the handshaking variant degrades faster than the non-handshaking version.
-As handshaking needs more hops, heck has more sources of error, this is an expected result.
-
-However, it can be stated that handshaking CYCLON behaves robust and very similar to its non-handshaking counterpart.
-
-\subsubsection{SCAMP}
-
-Figure \ref{fig:cluster_scamp1}, Figure \ref{fig:cluster_scamp2} and Figure \ref{fig:cluster_scamp3} show the average clustering coefficient with SCAMP, run over $500.00$ cycles.
+Figure \ref{fig:cluster_scamp3} show the average clustering coefficient with SCAMP, run over $100000$ cycles (note that the x-axis is scaled by $(* 100)$).
+The first thing to note is that SCAMP needs notably more cycles to converge than CYCLON.
+While the graph with CYCLON converges after roughly 200 cycles, the graph fully converges after around 30000 cycles.
 
 To rebalance the graph, SCAMP relies on its lease mechanism where a node has a certain lifespan and, after its lifespan is over, it gets removed from other peers view, removes itself from the network and reintroduces itself through a node in its partial view.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp1}
-    \caption{average clustering of the SCAMP protocol (no failure)}
-    \label{fig:cluster_scamp1}
-\end{figure}
+
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_cluster}
+%    \caption{average clustering of the CYCLON protocol (no failure)}
+%    \label{fig:cluster_cyclon}
+%\end{figure}
+
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_clusterX_f10}
+%    \caption{average clustering of the CYCLON protocol (10\% failure)}
+%    \label{fig:cluster_cyclon2}
+%\end{figure}
+
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_cluster_fail_40X}
+%    \caption{average clustering of the CYCLON protocol (40\% failure)}
+%    \label{fig:cluster_cyclon3}
+%\end{figure}
+
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp2}
-    \caption{average clustering of the SCAMP protocol (10\% failure)}
-    \label{fig:cluster_scamp2}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp3}
+    \includegraphics[width=9cm]{Images/statistics/scamp_1000_c2/cluster/all}
     \caption{average clustering of the SCAMP protocol (30\% failure)}
     \label{fig:cluster_scamp3}
 \end{figure}
+
+
+%\begin{figure}[H]
+ %   \centering
+ %   \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp1}
+ %   \caption{average clustering of the SCAMP protocol (no failure)}
+ %   \label{fig:cluster_scamp1}
+%\end{figure}
+
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp2}
+%    \caption{average clustering of the SCAMP protocol (10\% failure)}
+%    \label{fig:cluster_scamp2}
+%\end{figure}
+
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp3}
+%    \caption{average clustering of the SCAMP protocol (30\% failure)}
+%    \label{fig:cluster_scamp3}
+%\end{figure}
 
 The lifespan must be selected carefully as we want to avoid large chunks of the network to leave the network in parallel. 
 In the simulation we obtained this behavior by assigning random values over a range that is bigger than the number of peers.
@@ -706,44 +746,94 @@ The reason for this is that, with every lease and join on average more arcs are 
 This slowly degrades the graph until the point it gets disconnected.
 After a certain value, the graph is completely degenerated and does not connect nodes anymore (see: Figure \ref{fig:cluster_scamp3}).
 
+The \emph{average path length} is the average of the shortest path length between nodes in the graph.
+It counts the hops to reach a node from a given source.
+We want the average path length to be small so that the whole network can be reached as fast as possible.
 
+\subsubsection{CYCLON}
+
+Figure \ref{fig:path_cyclon} show the average path length with CYCLON, run over $1000$ cycles.
+The x-axis denotes the path length while the y-axis denotes the cycle.
+
+The results mirror thous from the \emph{average cluster coefficient}: CYCLON seems to perform very similar with or without handshaking.
+Only a significant error rate degrades the handshaking version clearly.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/avgpath/f0}
+    \includegraphics[width=9cm]{Images/statistics/cyclon_1000_c20/avgpath/all}
     \caption{average path length of the CYCLON protocol (no failure)}
     \label{fig:path_cyclon}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/avgpath/f10}
-    \caption{average path length of the CYCLON protocol (10\% failure)}
-    \label{fig:path_cyclon2}
-\end{figure}
+
+\subsubsection{SCAMP}
+
+Figure \ref{fig:f_scamp1} show the average path length with SCAMP, run over $100000$ cycles.
+Similar to the average cluster coefficient the handshake version degrades quickly when network failures are introduced.
+The reasons for this stay the same: as the lease and rejoin need to to perform many hops, this also represents many potential sources of error.
+Furthermore, as messages travel along the hops they get delayed, thus making nodes waiting for messages to arrive longer than in the non-handshaking version - this is the reason for the gaps in the graph.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/avgpath/f40}
-    \caption{average path length of the CYCLON protocol (40\% failure)}
-    \label{fig:path_cyclon3}
+    \includegraphics[width=9cm]{Images/statistics/scamp_1000_c2/avgpath/all}
+    \caption{average path length of the SCAMP protocol (no failure)}
+    \label{fig:f_scamp1}
 \end{figure}
 
-\section{Experiment 1}
+\section{SCAMPLON}
 
-Be extremely precise when describing your experiments.  They must be reproducible by any reader deeply interested in your work.
+The configuration value for SCAMPLON is $c$, which has the same purpose as the $c$ in SCAMP. In this simulation, $c = 3$. 
+This simulation compares SCAMPLON with CYCLON, both without handshaking.
+As previous experiments have shown, handshaking only adds constant complexity to CYCLON.
 
-You should describe all the hypotheses and constraints related to the manipulated data and the developed algorithms or used softwares.  Check them carefully in order not to draw false conclusion from bad inputs or erroneous processing!
+\subsection{Average Cluster Coefficient}
 
-In this part of the report, you should put forth \emph{synthetic results}, in the form of several tables and figures (e.g., See figure~\ref{fig:Courbes}%
-\footnote{Urs Oswald, \emph{``Graphics in LaTeX 2$_\varepsilon$,''} March 2003, \url{http://www.ursoswald.ch}.}%
-)
+Figure \ref{fig:n1} compare the average clustering coefficient from SCAMPLON and CYCLON over the run of $400$ cycles.
+We can observer that SCAMPLON performs significantly better than CYCLON, at least, when the failure rate is low (below $23\%$).
+ The reason for this is that SCAMPLON`s partial views have the almost ideal size of $\log{n}$ while CYCLON`s partial views with a value of $c=20$ exceed this optimum by far thous resulting in a higher interconnection which in turn results in a higher clustering degree.
 
-For the sake of completeness, these synthetic results must be supported by the base results from which they are derived.  These lengthy results have to be put into the appendices (e.g., See Appendix~\ref{app:Measures}).
+ However, when the failure rate gets higher, CYCLON outperforms SCAMPLON as it has more links that it can use as backup, when others fail.
 
-\section{Experiment 2}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=9cm]{Images/statistics/scamplon_1000_c3/cluster/all}
+    \caption{average cluster coefficient of the SCAMPLON and the CYCLON protocol (no failure)}
+    \label{fig:n1}
+\end{figure}
 
-Etc.
+\subsection{Average Path Length}
+
+Figure \ref{fig:np} compares the average path length between SCAMPLON and CYCLON.
+We observer that SCAMPLON converges faster than CYCLON, due to the smaller partial views and the better initial distribution due to the SCAMP initialization.
+
+However, in the long run CYCLON delivers a better average path length.
+The reason for this is that CYCLON maintains numerous links more than SCAMPLON and thus is better interconnected into its graph.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=9.3cm]{Images/statistics/scamplon_1000_c3/path_len/p}
+    \caption{average path length of the SCAMPLON and the CYCLON protocol (no failure)}
+    \label{fig:np}
+\end{figure}
+
+\subsection{Number of Arcs}
+
+Figure \ref{fig:narc} compares the number of arcs between SCAMPLON and CYCLON.
+The result yields no surprise as CYCLON has a bigger partial view and thus is interconnect better and thus has a higher count of arcs.
+
+SCAMPLON on the other hand has a constant number of arcs that were established by the initial SCAMP-protocol. 
+The shuffle function cannot and must not change this value.
+
+A smaller number of arcs has the advantage that it reduces the numbers of redundant messages sent in the network thus improving the used bandwidth.
+On the other hand, a high count of arcs can result in shorter paths and thus in faster message delivery.
+It also improves the resilience against failures.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=9.3cm]{Images/statistics/scamplon_1000_c3/arc_count/p}
+    \caption{Number of arcs in SCAMPLON and CYCLON (no failure)}
+    \label{fig:narc}
+\end{figure}
 
 \section{Conclusion}
 
@@ -755,17 +845,39 @@ The conclusion of this chapter (alternatively of this part) is normally the culm
 
 By the end of the work, you should firstly summarise the main steps and key results of the study.  Then, you should describe the research directions that this work opens, both simple extensions and new endeavours.
 
+WebRTC
+
+Handshaking
+
+Comparison of SCAMP and CYCLON
+
+Defining new algorithm SCAMPLON
+
+Experiments on Peersim.
+
 \section{Summary}
 
 Even if it is yet another repetition, it is convenient to summarise not the whole report but at least your own work and results, stressing their value.
 
+New efficient and simple algorithm
+
+Take the simple part from SCAMP and from CYCLON
+
 \section{Outcomes}
 
-The most valuable teachings of the work (there always have) must be emphasised.  Some can be personal.
+The new Algorithm SCAMPLON
 
 \section{Research directions}
 
 It is quite rare that a given work totally closes a topic!  Even in that case, it remains possible to introduce new research directions, more or less connected to the topic and the new state-of-the-art.  More generally, you can mention all and every question that has arisen during the course of your work.
+
+The algorithm must be tested against churn 
+
+Only message failure was tested, not complete node failure
+
+Unsubscription was not tested so far
+
+Actual implementation in WebRTC to test it in a real environment
 
 %--------------------------------------------------------------------------------
 
