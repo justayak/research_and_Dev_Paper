@@ -1,0 +1,772 @@
+Buildfile: /home/julian/Dev/peersim-1.0.5/build.xml
+
+compile:
+    [javac] /home/julian/Dev/peersim-1.0.5/build.xml:21: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
+added manifest
+adding: example/(in = 0) (out= 0)(stored 0%)
+adding: example/webrtc/(in = 0) (out= 0)(stored 0%)
+adding: example/webrtc/PeerSamplingService.class(in = 224) (out= 160)(deflated 28%)
+adding: example/webrtc/CyclonProtocol$Neighbor.class(in = 737) (out= 435)(deflated 40%)
+adding: example/webrtc/cyclon2/(in = 0) (out= 0)(stored 0%)
+adding: example/webrtc/cyclon2/CyclonEntry.class(in = 999) (out= 467)(deflated 53%)
+adding: example/webrtc/cyclon2/CyclonMessage.class(in = 615) (out= 327)(deflated 46%)
+adding: example/webrtc/cyclon2/CyclonObserver.class(in = 2611) (out= 1398)(deflated 46%)
+adding: example/webrtc/cyclon2/Cyclon.class(in = 5582) (out= 2694)(deflated 51%)
+adding: example/webrtc/cyclon/(in = 0) (out= 0)(stored 0%)
+adding: example/webrtc/cyclon/CyclonProtocol$Neighbor.class(in = 1128) (out= 597)(deflated 47%)
+adding: example/webrtc/cyclon/CyclonObserver.class(in = 3152) (out= 1684)(deflated 46%)
+adding: example/webrtc/cyclon/CyclonProtocol.class(in = 5382) (out= 2579)(deflated 52%)
+adding: example/webrtc/CyclonObserver.class(in = 1992) (out= 1116)(deflated 43%)
+adding: example/webrtc/data/(in = 0) (out= 0)(stored 0%)
+adding: example/webrtc/data/DictGraph.class(in = 9415) (out= 3857)(deflated 59%)
+adding: example/webrtc/data/DictNode.class(in = 684) (out= 428)(deflated 37%)
+adding: example/webrtc/data/DictGraph$MeanPathLength.class(in = 789) (out= 447)(deflated 43%)
+adding: example/webrtc/data/Graph$AvgReachablePaths.class(in = 681) (out= 401)(deflated 41%)
+adding: example/webrtc/data/Graph.class(in = 4172) (out= 2208)(deflated 47%)
+adding: example/webrtc/data/GraphNode.class(in = 415) (out= 301)(deflated 27%)
+adding: example/webrtc/data/DictGraph$AvgReachablePaths.class(in = 826) (out= 463)(deflated 43%)
+adding: example/webrtc/CyclonProtocol.class(in = 4240) (out= 2077)(deflated 51%)
+adding: example/PeerSamplingService.class(in = 220) (out= 169)(deflated 23%)
+adding: example/hot/(in = 0) (out= 0)(stored 0%)
+adding: example/hot/InetInitializer.class(in = 1121) (out= 673)(deflated 39%)
+adding: example/hot/InetCoordinates.class(in = 611) (out= 408)(deflated 33%)
+adding: example/hot/WireInetTopology.class(in = 1744) (out= 1073)(deflated 38%)
+adding: example/hot/InetObserver.class(in = 2540) (out= 1414)(deflated 44%)
+adding: example/scampXcyclon/(in = 0) (out= 0)(stored 0%)
+adding: example/scampXcyclon/ScamplonView.class(in = 6734) (out= 2687)(deflated 60%)
+adding: example/scampXcyclon/PartialViewEntry.class(in = 776) (out= 442)(deflated 43%)
+adding: example/scampXcyclon/Scamplon.class(in = 6583) (out= 3025)(deflated 54%)
+adding: example/scampXcyclon/Scamplon$1.class(in = 844) (out= 486)(deflated 42%)
+adding: example/scampXcyclon/ScamplonOld$1.class(in = 850) (out= 489)(deflated 42%)
+adding: example/scampXcyclon/Subscribe.class(in = 934) (out= 583)(deflated 37%)
+adding: example/scampXcyclon/ScamplonOld.class(in = 6587) (out= 3026)(deflated 54%)
+adding: example/cyclon/(in = 0) (out= 0)(stored 0%)
+adding: example/cyclon/CyclonSimple$1.class(in = 681) (out= 416)(deflated 38%)
+adding: example/cyclon/PeerSamplingService.class(in = 188) (out= 154)(deflated 18%)
+adding: example/cyclon/CyclonMessage$Type.class(in = 1233) (out= 645)(deflated 47%)
+adding: example/cyclon/CyclonInitializer.class(in = 1681) (out= 960)(deflated 42%)
+adding: example/cyclon/CyclonEntry.class(in = 1273) (out= 609)(deflated 52%)
+adding: example/cyclon/CyclonMessage.class(in = 1002) (out= 409)(deflated 59%)
+adding: example/cyclon/CyclonHandshake.class(in = 4577) (out= 2117)(deflated 53%)
+adding: example/cyclon/CyclonHandshake$1.class(in = 1005) (out= 567)(deflated 43%)
+adding: example/cyclon/CyclonSimple.class(in = 7957) (out= 3492)(deflated 56%)
+adding: example/edaggregation/(in = 0) (out= 0)(stored 0%)
+adding: example/edaggregation/AverageED.class(in = 1296) (out= 730)(deflated 43%)
+adding: example/edaggregation/AverageMessage.class(in = 266) (out= 217)(deflated 18%)
+adding: example/aggregation/(in = 0) (out= 0)(stored 0%)
+adding: example/aggregation/AverageFunction.class(in = 849) (out= 557)(deflated 34%)
+adding: example/aggregation/AverageObserver.class(in = 1540) (out= 909)(deflated 40%)
+adding: example/aggregation/PeakDistributionInitializer.class(in = 1085) (out= 651)(deflated 40%)
+adding: example/scamp/(in = 0) (out= 0)(stored 0%)
+adding: example/scamp/ScampProtocol$1.class(in = 733) (out= 459)(deflated 37%)
+adding: example/scamp/simple/(in = 0) (out= 0)(stored 0%)
+adding: example/scamp/simple/ScampSimple$1.class(in = 889) (out= 508)(deflated 42%)
+adding: example/scamp/simple/Scamp$1.class(in = 675) (out= 406)(deflated 39%)
+adding: example/scamp/simple/ScampHandshake$1.class(in = 908) (out= 507)(deflated 44%)
+adding: example/scamp/simple/ScampHandshake$Indirection.class(in = 1572) (out= 807)(deflated 48%)
+adding: example/scamp/simple/ScampMessage$Type.class(in = 1292) (out= 653)(deflated 49%)
+adding: example/scamp/simple/ScampSimple.class(in = 3062) (out= 1558)(deflated 49%)
+adding: example/scamp/simple/ScampMessage.class(in = 2655) (out= 1169)(deflated 55%)
+adding: example/scamp/simple/ScampFakeHandshake$1.class(in = 1196) (out= 592)(deflated 50%)
+adding: example/scamp/simple/ScampEntry.class(in = 1281) (out= 609)(deflated 52%)
+adding: example/scamp/simple/ScampSimple2.class(in = 534) (out= 325)(deflated 39%)
+adding: example/scamp/simple/ScampSubscribe.class(in = 1617) (out= 884)(deflated 45%)
+adding: example/scamp/simple/ScampFakeHandshake.class(in = 5837) (out= 2807)(deflated 51%)
+adding: example/scamp/simple/ScampHandshake.class(in = 5921) (out= 2867)(deflated 51%)
+adding: example/scamp/simple/Scamp.class(in = 5669) (out= 2726)(deflated 51%)
+adding: example/scamp/ScampWithView$1.class(in = 726) (out= 435)(deflated 40%)
+adding: example/scamp/old/(in = 0) (out= 0)(stored 0%)
+adding: example/scamp/old/ScampProtocol$1.class(in = 776) (out= 465)(deflated 40%)
+adding: example/scamp/old/ScampProtocol.class(in = 7260) (out= 3356)(deflated 53%)
+adding: example/scamp/old/ScampMessageOld$Type.class(in = 1292) (out= 657)(deflated 49%)
+adding: example/scamp/old/Unsubscribe.class(in = 1308) (out= 782)(deflated 40%)
+adding: example/scamp/old/ScampMessageOld.class(in = 2951) (out= 1272)(deflated 56%)
+adding: example/scamp/old/Subscribe.class(in = 1611) (out= 927)(deflated 42%)
+adding: example/scamp/old/Scamp.class(in = 6762) (out= 3341)(deflated 50%)
+adding: example/scamp/orig/(in = 0) (out= 0)(stored 0%)
+adding: example/scamp/orig/Scamp$1.class(in = 755) (out= 435)(deflated 42%)
+adding: example/scamp/orig/messaging/(in = 0) (out= 0)(stored 0%)
+adding: example/scamp/orig/messaging/ScampMessage$Type.class(in = 1007) (out= 491)(deflated 51%)
+adding: example/scamp/orig/messaging/ScampMessage.class(in = 2231) (out= 1016)(deflated 54%)
+adding: example/scamp/orig/Scamp.class(in = 3967) (out= 1905)(deflated 51%)
+adding: example/scamp/ScampWithView.class(in = 3883) (out= 1951)(deflated 49%)
+adding: example/scamp/Scamp$1.class(in = 458) (out= 287)(deflated 37%)
+adding: example/scamp/ScampProtocol.class(in = 2725) (out= 1367)(deflated 49%)
+adding: example/scamp/ScampMessage$Type.class(in = 1243) (out= 648)(deflated 47%)
+adding: example/scamp/Unsubscribe.class(in = 1300) (out= 780)(deflated 40%)
+adding: example/scamp/messaging/(in = 0) (out= 0)(stored 0%)
+adding: example/scamp/messaging/ScampMessage$LoopTopic.class(in = 1173) (out= 575)(deflated 50%)
+adding: example/scamp/messaging/ScampMessage$Type.class(in = 1656) (out= 811)(deflated 51%)
+adding: example/scamp/messaging/ScampMessage.class(in = 7479) (out= 2791)(deflated 62%)
+adding: example/scamp/ScampMessage.class(in = 2867) (out= 1265)(deflated 55%)
+adding: example/scamp/View.class(in = 4054) (out= 1979)(deflated 51%)
+adding: example/scamp/handshake/(in = 0) (out= 0)(stored 0%)
+adding: example/scamp/handshake/ScampMessage$Type.class(in = 904) (out= 452)(deflated 50%)
+adding: example/scamp/handshake/ScampMessage.class(in = 236) (out= 177)(deflated 25%)
+adding: example/scamp/handshake/ScampHandshake.class(in = 2176) (out= 1077)(deflated 50%)
+adding: example/scamp/Subscribe.class(in = 2094) (out= 1125)(deflated 46%)
+adding: example/scamp/nohandshake/(in = 0) (out= 0)(stored 0%)
+adding: example/scamp/nohandshake/ScampNoHandshake.class(in = 4696) (out= 2313)(deflated 50%)
+adding: example/scamp/nohandshake/ScampNoHandshake$1.class(in = 753) (out= 442)(deflated 41%)
+adding: example/scamp/View$ViewEntry.class(in = 792) (out= 489)(deflated 38%)
+adding: example/scamp/Scamp.class(in = 4419) (out= 2174)(deflated 50%)
+adding: example/Scamplon/(in = 0) (out= 0)(stored 0%)
+adding: example/Scamplon/Scamplon.class(in = 5740) (out= 2792)(deflated 51%)
+adding: example/Scamplon/PartialView$Entry.class(in = 1809) (out= 873)(deflated 51%)
+adding: example/Scamplon/PartialView.class(in = 7901) (out= 3090)(deflated 60%)
+adding: example/Scamplon/Scamplon$1.class(in = 901) (out= 509)(deflated 43%)
+adding: example/Scamplon/ScamplonProtocol.class(in = 1114) (out= 637)(deflated 42%)
+adding: example/Scamplon/Subscribe.class(in = 462) (out= 327)(deflated 29%)
+adding: example/Scamplon/PartialView$RemoveVolatileResult.class(in = 637) (out= 316)(deflated 50%)
+adding: example/loadbalance/(in = 0) (out= 0)(stored 0%)
+adding: example/loadbalance/ResetQuota.class(in = 906) (out= 556)(deflated 38%)
+adding: example/loadbalance/AvgBalance.class(in = 2261) (out= 1182)(deflated 47%)
+adding: example/loadbalance/QuotaObserver.class(in = 1342) (out= 788)(deflated 41%)
+adding: example/loadbalance/LBObserver.class(in = 1976) (out= 1091)(deflated 44%)
+adding: example/loadbalance/BasicBalance.class(in = 1538) (out= 951)(deflated 38%)
+adding: example/loadbalance/LinearDistributionInitializer.class(in = 1239) (out= 727)(deflated 41%)
+adding: example/newscast/(in = 0) (out= 0)(stored 0%)
+adding: example/newscast/SimpleNewscast.class(in = 3653) (out= 1914)(deflated 47%)
+adding: example/PeerSamplingServiceObserver.class(in = 3850) (out= 2091)(deflated 45%)
+adding: peersim/(in = 0) (out= 0)(stored 0%)
+adding: peersim/Simulator.class(in = 2743) (out= 1484)(deflated 45%)
+adding: peersim/reports/(in = 0) (out= 0)(stored 0%)
+adding: peersim/reports/RandRemoval.class(in = 2022) (out= 1187)(deflated 41%)
+adding: peersim/reports/GraphStats.class(in = 1672) (out= 948)(deflated 43%)
+adding: peersim/reports/DegreeStats.class(in = 3270) (out= 1773)(deflated 45%)
+adding: peersim/reports/GraphObserver.class(in = 1919) (out= 1078)(deflated 43%)
+adding: peersim/reports/MemoryObserver.class(in = 924) (out= 536)(deflated 41%)
+adding: peersim/reports/ConnectivityObserver.class(in = 1988) (out= 1097)(deflated 44%)
+adding: peersim/reports/BallExpansion.class(in = 2113) (out= 1185)(deflated 43%)
+adding: peersim/reports/Clustering.class(in = 1157) (out= 694)(deflated 40%)
+adding: peersim/reports/GraphPrinter.class(in = 2182) (out= 1196)(deflated 45%)
+adding: peersim/vector/(in = 0) (out= 0)(stored 0%)
+adding: peersim/vector/VectAngle.class(in = 1419) (out= 818)(deflated 42%)
+adding: peersim/vector/VectorObserver.class(in = 984) (out= 591)(deflated 39%)
+adding: peersim/vector/VectorComparator.class(in = 1658) (out= 877)(deflated 47%)
+adding: peersim/vector/InitVectFromFile.class(in = 1783) (out= 1039)(deflated 41%)
+adding: peersim/vector/VectCopy.class(in = 1160) (out= 649)(deflated 44%)
+adding: peersim/vector/SingleValueComparator.class(in = 483) (out= 316)(deflated 34%)
+adding: peersim/vector/SingleValueObserver.class(in = 1480) (out= 870)(deflated 41%)
+adding: peersim/vector/VectControl.class(in = 602) (out= 347)(deflated 42%)
+adding: peersim/vector/GetterSetterFinder.class(in = 2647) (out= 1193)(deflated 54%)
+adding: peersim/vector/Setter.class(in = 3031) (out= 1405)(deflated 53%)
+adding: peersim/vector/Getter.class(in = 3177) (out= 1454)(deflated 54%)
+adding: peersim/vector/PeakDistribution.class(in = 1685) (out= 922)(deflated 45%)
+adding: peersim/vector/ValueDumper.class(in = 1785) (out= 991)(deflated 44%)
+adding: peersim/vector/LinearDistribution.class(in = 1588) (out= 869)(deflated 45%)
+adding: peersim/vector/TestVectors.class(in = 998) (out= 484)(deflated 51%)
+adding: peersim/vector/Normalizer.class(in = 1605) (out= 922)(deflated 42%)
+adding: peersim/vector/UniformDistribution.class(in = 1925) (out= 1006)(deflated 47%)
+adding: peersim/vector/SingleValue.class(in = 129) (out= 110)(deflated 14%)
+adding: peersim/vector/SingleValueHolder.class(in = 783) (out= 463)(deflated 40%)
+adding: peersim/core/(in = 0) (out= 0)(stored 0%)
+adding: peersim/core/Node.class(in = 389) (out= 258)(deflated 33%)
+adding: peersim/core/OracleIdleProtocol.class(in = 1069) (out= 610)(deflated 42%)
+adding: peersim/core/CommonState.class(in = 1845) (out= 1014)(deflated 45%)
+adding: peersim/core/MaliciousProtocol.class(in = 111) (out= 90)(deflated 18%)
+adding: peersim/core/Linkable.class(in = 260) (out= 179)(deflated 31%)
+adding: peersim/core/Scheduler.class(in = 1851) (out= 980)(deflated 47%)
+adding: peersim/core/Fallible.class(in = 255) (out= 191)(deflated 25%)
+adding: peersim/core/Control.class(in = 96) (out= 91)(deflated 5%)
+adding: peersim/core/ModifiableNode.class(in = 295) (out= 205)(deflated 30%)
+adding: peersim/core/Network.class(in = 3493) (out= 1863)(deflated 46%)
+adding: peersim/core/Cleanable.class(in = 97) (out= 92)(deflated 5%)
+adding: peersim/core/IdleProtocol.class(in = 1924) (out= 1060)(deflated 44%)
+adding: peersim/core/OverlayGraph.class(in = 1943) (out= 1019)(deflated 47%)
+adding: peersim/core/Protocol.class(in = 139) (out= 114)(deflated 17%)
+adding: peersim/core/GeneralNode.class(in = 2609) (out= 1386)(deflated 46%)
+adding: peersim/cdsim/(in = 0) (out= 0)(stored 0%)
+adding: peersim/cdsim/Shuffle.class(in = 281) (out= 214)(deflated 23%)
+adding: peersim/cdsim/CDSimulator.class(in = 2827) (out= 1508)(deflated 46%)
+adding: peersim/cdsim/NextCycle.class(in = 1921) (out= 1091)(deflated 43%)
+adding: peersim/cdsim/DaemonProtocol.class(in = 1676) (out= 924)(deflated 44%)
+adding: peersim/cdsim/CDState.class(in = 913) (out= 539)(deflated 40%)
+adding: peersim/cdsim/FullNextCycle.class(in = 2003) (out= 1133)(deflated 43%)
+adding: peersim/cdsim/CDProtocol.class(in = 151) (out= 123)(deflated 18%)
+adding: peersim/config/(in = 0) (out= 0)(stored 0%)
+adding: peersim/config/Operators.class(in = 2372) (out= 1002)(deflated 57%)
+adding: peersim/config/Configuration.class(in = 2688) (out= 1059)(deflated 60%)
+adding: peersim/config/CheckConfig.class(in = 2310) (out= 1285)(deflated 44%)
+adding: peersim/config/NullPrintStream.class(in = 359) (out= 239)(deflated 33%)
+adding: peersim/config/ClassFinder.class(in = 4219) (out= 2123)(deflated 49%)
+adding: peersim/config/IllegalParameterException.class(in = 1093) (out= 617)(deflated 43%)
+adding: peersim/config/ConfigProperties.class(in = 2168) (out= 1052)(deflated 51%)
+adding: peersim/config/FastConfig.class(in = 1872) (out= 995)(deflated 46%)
+adding: peersim/config/ParsedProperties.class(in = 2501) (out= 1358)(deflated 45%)
+adding: peersim/config/ConfigContainer.class(in = 12087) (out= 5775)(deflated 52%)
+adding: peersim/config/MissingParameterException.class(in = 1175) (out= 640)(deflated 45%)
+adding: peersim/edsim/(in = 0) (out= 0)(stored 0%)
+adding: peersim/edsim/EDProtocol.class(in = 172) (out= 132)(deflated 23%)
+adding: peersim/edsim/EDSimulator.class(in = 5454) (out= 2840)(deflated 47%)
+adding: peersim/edsim/RegRandNextCycle.class(in = 667) (out= 458)(deflated 31%)
+adding: peersim/edsim/Heap.class(in = 3864) (out= 2062)(deflated 46%)
+adding: peersim/edsim/ControlEvent.class(in = 695) (out= 430)(deflated 38%)
+adding: peersim/edsim/CDScheduler.class(in = 2833) (out= 1552)(deflated 45%)
+adding: peersim/edsim/PriorityQ.class(in = 387) (out= 230)(deflated 40%)
+adding: peersim/edsim/NextCycleEvent.class(in = 1056) (out= 620)(deflated 41%)
+adding: peersim/edsim/PriorityQ$Event.class(in = 763) (out= 423)(deflated 44%)
+adding: peersim/edsim/RandNextCycle.class(in = 499) (out= 340)(deflated 31%)
+adding: peersim/dynamics/(in = 0) (out= 0)(stored 0%)
+adding: peersim/dynamics/WireStar.class(in = 335) (out= 206)(deflated 38%)
+adding: peersim/dynamics/DynamicNetwork.class(in = 2257) (out= 1238)(deflated 45%)
+adding: peersim/dynamics/WireWS.class(in = 940) (out= 531)(deflated 43%)
+adding: peersim/dynamics/WireKOut.class(in = 803) (out= 468)(deflated 41%)
+adding: peersim/dynamics/WireFromFile.class(in = 1881) (out= 1122)(deflated 40%)
+adding: peersim/dynamics/WireScaleFreeBA.class(in = 817) (out= 475)(deflated 41%)
+adding: peersim/dynamics/WireGraph.class(in = 1682) (out= 970)(deflated 42%)
+adding: peersim/dynamics/MethodInvoker.class(in = 3484) (out= 1877)(deflated 46%)
+adding: peersim/dynamics/WireRingLattice.class(in = 715) (out= 409)(deflated 42%)
+adding: peersim/dynamics/OscillatingNetwork.class(in = 1983) (out= 1116)(deflated 43%)
+adding: peersim/dynamics/WireByMethod.class(in = 3740) (out= 1879)(deflated 49%)
+adding: peersim/dynamics/RandNI.class(in = 1372) (out= 777)(deflated 43%)
+adding: peersim/dynamics/WireScaleFreeDM.class(in = 1155) (out= 707)(deflated 38%)
+adding: peersim/dynamics/NodeInitializer.class(in = 130) (out= 110)(deflated 15%)
+adding: peersim/dynamics/WireRegRootedTree.class(in = 724) (out= 423)(deflated 41%)
+adding: peersim/dynamics/StarNI.class(in = 1228) (out= 697)(deflated 43%)
+adding: peersim/graph/(in = 0) (out= 0)(stored 0%)
+adding: peersim/graph/GraphIO.class(in = 4218) (out= 2126)(deflated 49%)
+adding: peersim/graph/SubGraphEdges.class(in = 1964) (out= 1022)(deflated 47%)
+adding: peersim/graph/GraphAlgorithms.class(in = 4437) (out= 2331)(deflated 47%)
+adding: peersim/graph/FastUndirGraph.class(in = 1202) (out= 749)(deflated 37%)
+adding: peersim/graph/Graph.class(in = 410) (out= 257)(deflated 37%)
+adding: peersim/graph/ConstUndirGraph.class(in = 2022) (out= 1065)(deflated 47%)
+adding: peersim/graph/BitMatrixGraph.class(in = 1829) (out= 983)(deflated 46%)
+adding: peersim/graph/GraphFactory.class(in = 1824) (out= 1078)(deflated 40%)
+adding: peersim/graph/UndirectedGraph.class(in = 1480) (out= 782)(deflated 47%)
+adding: peersim/graph/PrefixSubGraph.class(in = 1802) (out= 954)(deflated 47%)
+adding: peersim/graph/NeighbourListGraph.class(in = 2205) (out= 1031)(deflated 53%)
+adding: peersim/transport/(in = 0) (out= 0)(stored 0%)
+adding: peersim/transport/KingParser.class(in = 2922) (out= 1545)(deflated 47%)
+adding: peersim/transport/TriangularMatrixParser.class(in = 1973) (out= 1092)(deflated 44%)
+adding: peersim/transport/UniformRandomTransport.class(in = 1571) (out= 811)(deflated 48%)
+adding: peersim/transport/E2ENetwork.class(in = 586) (out= 421)(deflated 28%)
+adding: peersim/transport/UniformRouterAssignment.class(in = 1131) (out= 680)(deflated 39%)
+adding: peersim/transport/UnreliableTransport.class(in = 1521) (out= 844)(deflated 44%)
+adding: peersim/transport/Transport.class(in = 251) (out= 156)(deflated 37%)
+adding: peersim/transport/E2ETransport.class(in = 1514) (out= 817)(deflated 46%)
+adding: peersim/transport/RouterInfo.class(in = 133) (out= 115)(deflated 13%)
+adding: peersim/util/(in = 0) (out= 0)(stored 0%)
+adding: peersim/util/FileNameGenerator.class(in = 835) (out= 503)(deflated 39%)
+adding: peersim/util/IncrementalStats.class(in = 1614) (out= 827)(deflated 48%)
+adding: peersim/util/ExtendedRandom.class(in = 732) (out= 538)(deflated 26%)
+adding: peersim/util/MomentStats.class(in = 1011) (out= 619)(deflated 38%)
+adding: peersim/util/IncrementalFreq.class(in = 2549) (out= 1400)(deflated 45%)
+adding: peersim/util/RandPermutation.class(in = 1112) (out= 664)(deflated 40%)
+adding: peersim/util/StringListParser.class(in = 2639) (out= 1292)(deflated 51%)
+adding: peersim/util/WeightedRandPerm.class(in = 1684) (out= 1007)(deflated 40%)
+adding: peersim/util/MedianStats.class(in = 1652) (out= 958)(deflated 42%)
+adding: peersim/util/LinearIterator.class(in = 692) (out= 447)(deflated 35%)
+adding: peersim/util/IndexIterator.class(in = 146) (out= 129)(deflated 11%)
+adding: peersim/rangesim/(in = 0) (out= 0)(stored 0%)
+adding: peersim/rangesim/ProcessHandler.class(in = 180) (out= 148)(deflated 17%)
+adding: peersim/rangesim/ProcessManager.class(in = 1118) (out= 651)(deflated 41%)
+adding: peersim/rangesim/RangeSimulator.class(in = 6260) (out= 3285)(deflated 47%)
+adding: peersim/rangesim/TaggedOutputStream.class(in = 2163) (out= 1199)(deflated 44%)
+
+
+
+0.0
+0.09038730158730161
+0.19315476190476183
+0.30145288600288606
+0.42207164483263593
+0.42207164483263593
+0.4882234874344786
+0.5393063414054127
+0.5841779023006579
+0.6287938304213848
+0.6287938304213848
+0.6587043821692575
+0.6804280234955508
+0.7015679517784034
+0.7136110272070021
+0.7136110272070021
+0.7180667774113033
+0.7198658791478997
+0.7221699392961641
+0.7195685321718707
+0.7195685321718707
+0.7195430182078674
+0.7200898137746805
+0.7197159778719506
+0.7154486521621591
+0.7154486521621591
+0.7109050039589717
+0.7088074984689668
+0.7063378538317691
+0.7042526379416905
+0.7042526379416905
+0.7008374500805047
+0.6998974121594155
+0.7015712383839101
+0.6990974772219628
+0.6990974772219628
+0.6990948873636468
+0.6977176381903917
+0.6942757437450701
+0.6909669795060223
+0.6909669795060223
+0.6873112448469818
+0.6848141549915157
+0.6817506304062697
+0.6786446802396766
+0.6786446802396766
+0.6778210751151493
+0.6731056226955263
+0.6688547146104733
+0.666064458640682
+0.666064458640682
+0.6606362866880812
+0.6506496335258499
+0.6453330908248711
+0.6377388326861468
+0.6377388326861468
+0.6307826024299155
+0.6218610751143179
+0.6164118738243605
+0.6116987424770957
+0.6116987424770957
+0.6037222866524293
+0.5958719923060747
+0.5925015207416483
+0.5891973522220066
+0.5891973522220066
+0.588668364337487
+0.582623983707673
+0.5817518402096968
+0.5779891630805457
+0.5779891630805457
+0.5732329932013102
+0.5655830651201447
+0.5599731577851934
+0.55608342631077
+0.55608342631077
+0.5533013636864271
+0.5459863608357081
+0.5431577915528912
+0.5384933724039885
+0.5384933724039885
+0.5350729978872563
+0.5286631216958042
+0.5236764153626063
+0.5184979906034759
+0.5184979906034759
+0.5141429000259299
+0.5090614567565817
+0.5037963372153789
+0.49748205686806896
+0.49748205686806896
+0.4949778716264603
+0.48876420098327494
+0.4853257130437049
+0.4816422449646684
+0.4816422449646684
+0.48040641451047444
+0.4787410485587079
+0.4729346012208334
+0.46749669879252803
+0.46749669879252803
+0.46290703914066633
+0.456759473021674
+0.4517856134761895
+0.4500835019769043
+0.4500835019769043
+0.44377647187622704
+0.43936265176436656
+0.4367466017380371
+0.4327132429674918
+0.4327132429674918
+0.4306013964739579
+0.42601838563640154
+0.4205187479665637
+0.41638579545577437
+0.41638579545577437
+0.4117253954122364
+0.40581388023337517
+0.40025516963744895
+0.39837109097863277
+0.39837109097863277
+0.395510782384534
+0.3934500865510926
+0.39086653315646147
+0.38583167919278366
+0.38583167919278366
+0.38271587108192906
+0.37595887344234097
+0.3716706643671199
+0.3696701410404956
+0.3696701410404956
+0.36630629435051687
+0.3630688661354095
+0.3588010712301465
+0.3564347195075045
+0.3564347195075045
+0.3525587611450588
+0.3511392695348881
+0.3475386003024555
+0.3453681832547606
+0.3453681832547606
+0.34259600220348113
+0.33963710561309646
+0.33795616865373224
+0.33698187273385805
+0.33698187273385805
+0.33407333930377225
+0.33067322512188857
+0.32819513526042593
+0.32558728982032104
+0.32558728982032104
+0.32204074712232794
+0.3205280792285228
+0.3153622001239342
+0.3127730991913321
+0.3127730991913321
+0.30977472421707897
+0.3085914831097107
+0.30520822957458127
+0.3026063977895844
+0.3026063977895844
+0.29968506987052607
+0.2968197560182407
+0.29475943039929153
+0.29005759153198674
+0.29005759153198674
+0.28783584928319633
+0.2858545462550256
+0.2812981109892571
+0.279235381715511
+0.279235381715511
+0.27868101693624053
+0.27653050534991497
+0.2736405620222584
+0.27296831277366335
+0.27296831277366335
+0.2714061920407969
+0.27006022965054155
+0.2668143001197769
+0.26465058646584
+0.26465058646584
+0.2632387968744546
+0.25943326676857725
+0.2579093990929902
+0.25684291590819675
+0.25684291590819675
+0.25465663104098235
+0.2508480819272728
+0.24882850680953264
+0.24608248156522758
+0.24608248156522758
+0.244357277722083
+0.24258120930987598
+0.2407635361168564
+0.23949333320561536
+0.23949333320561536
+0.2380989486361817
+0.23576156098556544
+0.2346487581290177
+0.23205639178901388
+0.23205639178901388
+0.23086500579280939
+0.22802444911201103
+0.2248853604288167
+0.2234483290406998
+0.2234483290406998
+0.22238957057676698
+0.2219237926879371
+0.21964814360849536
+0.21798107780284828
+0.21798107780284828
+0.21726010807228968
+0.21524538401472287
+0.21424426851722658
+0.21120127360829605
+0.21120127360829605
+0.21016698570999764
+0.20849937662547782
+0.20619917368883975
+0.20383275687823305
+0.20383275687823305
+0.20084445337131157
+0.19958057983413013
+0.19820239401827425
+0.1968148988602582
+0.1968148988602582
+0.1958835845066554
+0.19391914935553511
+0.1932417485804848
+0.19123097880395465
+0.19123097880395465
+0.18921836673421077
+0.18774166018311145
+0.18602246912274564
+0.18376966697127473
+0.18376966697127473
+0.1831368411627772
+0.18211011953753092
+0.1810602794982911
+0.1792981051301432
+0.1792981051301432
+0.17709822777451728
+0.17588732141137
+0.17432441519057434
+0.1734265823936672
+0.1734265823936672
+0.172882441678495
+0.17184028311988434
+0.17167336649906514
+0.17032551140540117
+0.17032551140540117
+0.16989213224059577
+0.1683396567012729
+0.1670403304261453
+0.1668523074502566
+0.1668523074502566
+0.16677401480852258
+0.16626238185944134
+0.16471973289287473
+0.1648389120313932
+0.1648389120313932
+0.16402766596430776
+0.16330857216335806
+0.16226503391242267
+0.16145959997826342
+0.16145959997826342
+0.16131094207130106
+0.16023755700148576
+0.15942697738867112
+0.15893397921427507
+0.15893397921427507
+0.15851487378106408
+0.15768871532149423
+0.156755006385592
+0.15523857246123332
+0.15523857246123332
+0.15540809469428316
+0.15494177440084386
+0.15370350975586072
+0.15298166096752447
+0.15298166096752447
+0.15298890996007367
+0.15174726792532076
+0.151007259626165
+0.1497224363105831
+0.1497224363105831
+0.14935911632126345
+0.14977965026468873
+0.1492316051745981
+0.14791260761024913
+0.14791260761024913
+0.1467093902450684
+0.1448717725697959
+0.14489917977983258
+0.14447871239597698
+0.14447871239597698
+0.14224232368173434
+0.1426041640610396
+0.14275827244372166
+0.14322565856508335
+0.14322565856508335
+0.14230160061530053
+0.14150975009041283
+0.1411174780883709
+0.14065483583176475
+0.14065483583176475
+0.1411529731427819
+0.13942614474583923
+0.1382735663144471
+0.13789992139608384
+0.13789992139608384
+0.1373123476838691
+0.1376675727847227
+0.13729852067340553
+0.13728666376963047
+0.13728666376963047
+0.13645846002948783
+0.1364272885974262
+0.13539742435167376
+0.13468820697688272
+0.13468820697688272
+0.13374035931806127
+0.13293677427879544
+0.1335807725764016
+0.13258463200538717
+0.13258463200538717
+0.1308957801626386
+0.13105528548530984
+0.1302987676273702
+0.12928839130870293
+0.12928839130870293
+0.1290087709868905
+0.12870322564544748
+0.12792857382275777
+0.12850857364579418
+0.12850857364579418
+0.1278620638702658
+0.1264340095170924
+0.12560362026110836
+0.12424768113972041
+0.12424768113972041
+0.12396667946314534
+0.12403692367828548
+0.12383875281848661
+0.1232100715855348
+0.1232100715855348
+0.12249050009235318
+0.12219408007966069
+0.12176870348215267
+0.12103358258292699
+0.12103358258292699
+0.12138545837148793
+0.11987771074492712
+0.11865553841713328
+0.11716380197862011
+0.11716380197862011
+0.116092115232547
+0.11544568194355632
+0.11436457672196426
+0.11309349795433829
+0.11309349795433829
+0.11248218981217142
+0.11175167979681636
+0.11141976236168383
+0.11033083655333857
+0.11033083655333857
+0.11013777218879185
+0.10920000822610923
+0.10864877104817143
+0.1074702947576923
+0.1074702947576923
+0.10667610282496283
+0.10599630948091646
+0.1058396922074706
+0.10467758399569578
+0.10467758399569578
+0.10462973967082573
+0.10340077537082634
+0.10194408977372828
+0.10147969119343694
+0.10147969119343694
+0.10173226631038094
+0.10066207833208407
+0.09879552000569813
+0.09851130379765602
+0.09851130379765602
+0.09833866774340061
+0.09762793366534549
+0.09698833099043448
+0.09660314028320523
+0.09660314028320523
+0.09621120671642694
+0.0951614327325914
+0.09455165815053743
+0.09416005882471376
+0.09416005882471376
+0.09413607886652323
+0.09344293436871244
+0.09323909982398952
+0.09225081331252773
+0.09225081331252773
+0.091013438339264
+0.09089691373121078
+0.09042616265337045
+0.09074401203296356
+0.09074401203296356
+0.0896050756504632
+0.08903807367736596
+0.08847401666692797
+0.08880012068407715
+0.08880012068407715
+0.08888685603763563
+0.08913177098607632
+0.08848752282401706
+0.08751727018934576
+0.08751727018934576
+0.08722251813147662
+0.08708251823114643
+0.08683023499348803
+0.08627051380173617
+0.08627051380173617
+0.08625897198195759
+0.08615367657599109
+0.08598673486616563
+0.08563033446850728
+0.08563033446850728
+0.08450216819792185
+0.0842774221139136
+0.08454019104802594
+0.08516485096447064
+0.08516485096447064
+0.08387727077868064
+0.08404031005531495
+0.08492429773320155
+0.08494264947465391
+0.08494264947465391
+0.08462494831746678
+0.08438428860176675
+0.08446129090716359
+0.08450296211122009
+0.08450296211122009
+0.08464364114896657
+0.08433148454191443
+0.08493772972606703
+0.08386417031737033
+0.08386417031737033
+0.08412456715148628
+0.08383636160827677
+0.08343344024622422
+0.08338645590861478
+0.08338645590861478
+0.08313444238851239
+0.0829949581889281
+0.08268803377785786
+0.08321544926457286
+0.08321544926457286
+0.08303563227797875
+0.08276025995801073
+0.08281297528164924
+0.08317954377881505
+0.08317954377881505
+0.0829428223406259
+0.08300904684144123
+0.08294031367874853
+0.08262695520555043
+0.08262695520555043
+0.08240756855404667
+0.08242963561366312
+0.08229952234665612
+0.08324499764203949
+0.08324499764203949
+0.08271673729220698
+0.08260956655780535
+0.08261711581478139
+0.0831966036870062
+0.0831966036870062
+0.08315570381618102
+0.08305013604481788
+0.082767739589693
+0.08217905292464443
+0.08217905292464443
+0.08189216470173889
+0.08230440319169217
+0.08245304747123089
+0.08237238881450534
+0.08237238881450534
+0.08223942567599653
+0.08177365670296509
+0.08191908661958217
+0.0820019645355568
+0.0820019645355568
+0.08196109634200749
+0.08163939607626847
+0.08145195700109188
+0.08189906137819744
+0.08189906137819744
+0.0819879484604138
+0.08151383798711113
+0.0815982554336124
+0.0812825732722221
+0.0812825732722221

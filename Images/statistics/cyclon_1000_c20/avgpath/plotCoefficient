@@ -1,0 +1,26 @@
+set terminal pngcairo  transparent enhanced font "arial,13" fontscale 1.0 size 600, 500
+set output 'simple.1.png'
+# put it to eps (vectors)
+# change to black and white
+set key inside left top vertical Right noreverse enhanced autotitles box linetype -1 linewidth 1.000
+
+#set yrange [0:1]
+set termoption dashed
+
+#set pointintervalbox 1
+
+set xlabel "(* 100)"
+
+set style line 1 lc rgb '#396AB1' linetype 1 lw 4 pt 3
+set style line 2 lc rgb '#396AB1' linetype 2 lw 4 pt 3
+set style line 3 lc rgb '#DA7C30' lt 1 lw 4 pt 3
+set style line 4 lc rgb '#DA7C30' lt 2 lw 4 pt 3
+set style line 5 lc rgb '#3E9651' lt 1 lw 4 pt 3
+set style line 6 lc rgb '#3E9651' lt 2 lw 4 pt 3
+
+plot [0:950] "a.txt" using ($0+1):1 title "CYCLON no Handshake (0% failure)" w l ls 1,\
+	"b.txt" using ($0+1):1 title "CYCLON with Handshake (0% failure)" w l ls 2,\
+	"a10.txt" using ($0+1):1 title "CYCLON no Handshake (10% failure)" w l ls 3, \
+	"b10.txt" using ($0+1):1 title "CYCLON with Handshake (10% failure)" w l ls 4, \
+	"a40.txt" using ($0+1):1 title "CYCLON no Handshake (40% failure)" w l ls 5, \
+	"b40.txt" using ($0+1):1 title "CYCLON with Handshake (40% failure)" w l ls 6

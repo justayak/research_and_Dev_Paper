@@ -16,7 +16,7 @@
 \begin{document}
 
 \title{SCAMPLON: A Peer Sampling Service for WebRTC}
-\subtitle{A Model and Short Guide}
+\subtitle{Gossiping with Handshakes}
 
 \authorA{Julian}{Tanke}
 \authorB{}{}
@@ -62,7 +62,7 @@ Furthermore, we propose SCAMPLON, a new membership protocol composite of parts o
 SCAMPLON provides good properties and is not just applicable for WebRTC and handshaking but can also be used more generally as a generic peer sampling service.
 
 
-   \subsubsection {KEY WORDS}
+   \emph{KEY WORDS}
    Membership management; peer-to-peer; epidemic/gossiping protocols; Scalability; random graphs
 
 \end{abstract}
@@ -267,8 +267,8 @@ The probabilistic scalable membership protocol (SCAMP)\cite{Ganesh:2001:SPL:6480
 The size of its local views adapt automatically to a desired value of $(c+1)\log{n}$ where $c$ is a  parameter which specifies the degree of robustness to failure(\cite{Kermarrec:2003:PRD:766617.766623}, \emph{Theorem 1}).
 It maintains two separated partial views\cite{Ganesh:2003:PMM:642778.642782}, one for receiving gossip messages (InView $\mathcal{N}^{in}$), one for sending gossip messages (PartialView $\mathcal{N}^{out}$).
 
-If a new node $k$ wants to join the network $G(V,E)$ it needs to have one member $i \in V$ in $\mathcal{N}_k^{out}$ and send a subscription request to $i$.
-On receiving a subscription request, $i$ forwards the new peer to all members of its own $\mathcal{N}_i^{out}$, and, additionally, creates $c$ copies of the new subscription and forwards them to randomly chosen nodes in $\mathcal{N}_i^{out}$.
+If a new node $k$ wants to join the network $G(V,E)$ it needs to have one member $i \in V$ in $\mathcal{N}_k^{out}$ and send a subscription request to $i$\footnote{See \ref{alg:scamp1}}.
+On receiving a subscription request, $i$ forwards the new peer to all members of its own $\mathcal{N}_i^{out}$, and, additionally, creates $c$ copies of the new subscription and forwards them to randomly chosen nodes in $\mathcal{N}_i^{out}$\footnote{See \ref{alg:scamp2}}.
 On receiving a forwarded subscription for node $k$, a receiving node $j$ integrates $k$ into its $\mathcal{N}_j^{out}$ with probability $p$ which depends on the size of $\mathcal{N}_j^{out}$ ($p_i=\frac{1}{1+|\mathcal{N}_i^{out}|}$). 
 If $j$ does not integrate $k$, it forwards it to another randomly chosen peer from its $\mathcal{N}_j^{out}$.
 When a node $i$ decides to keep the subscription of a node $j$, it integrates $j$ into its $\mathcal{N}_i^{out}$ and notifies $j$ to put $i$ into its $InView_j$.
@@ -326,7 +326,7 @@ Pseudocode: \cite{Ganesh:2001:SPL:648089.747488}, Section 2.1
 In SCAMP, good scaling behavior is ensured when new nodes select their entry point uniformly random among the existing members\footnote{\cite{Ganesh:2001:SPL:648089.747488}, 3.1}.
 However, in reality this is seldom the case. Instead it can be expected that few nodes will be designated entrances into the network.
 To ensure a random distribution under this circumstances SCAMP introduces \emph{indirection} where the initial entrance node forwards the subscribers request to a node that is approximately chosen at random among the existing nodes.
-This is done by a random walk\footnote{the exact algorithm is out of the scope of this report} of length $\log{n}$ which is the expected diameter of the graph.
+This is done by a random walk\footnote{the exact algorithm is out of the scope of this report} of length $2*(c+1)\log{n}$\footnote{constant defined in the paper \cite{Ganesh:2001:SPL:648089.747488}} which is the expected diameter of the graph.
 
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++++++++++
@@ -343,7 +343,7 @@ Every $\bigtriangleup T$ time unit a node $i$ executes the shuffle function:
     \item{Select neigbor $j$ with the highest age among all neighbors, and $l-1$\footnote{$1 \le l \le c$}} other random neighbors.
     \item{Replace $j$'s entry with a new enty of age 0 and with $i$'s address.}
     \item{Send the updated subset to peer $j$}
-    \item{Receive from $j$ a subset of no more than $t$ of its own entries.}
+    \item{Receive from $j$ a subset of no more than $l$ of its own entries.}
     \item{Discard entries pointing at $j$ and entries already contained in $i$'s partial view.}
     \item{Update $i$'s partial view to include all remaining entries, by firstly using empty slots (if any), and secondly replacing entries among the ones sent to $j$}
 \end{enumerate}
@@ -430,7 +430,7 @@ Table~\ref{tab:Comparison} shows that the two introduced algorithms each provide
 \hfill \break
 
 Furthermore, we want the algorithm to diverge all its partial view sizes to the optimal value as fast as possible. 
-Here, CYCLON is clearly better as its $\bigtriangleup T$ can be much smaller than the lease time in SCAMP allows.
+Here, CYCLON is clearly better as its $\bigtriangleup T$ can be much smaller than the lease time in SCAMP allows\footnote{if the lease time is too small, too many peers would rejoin in the same moment thus disconnecting the graph}.
 
 \section{Conclusion}
 
@@ -482,7 +482,8 @@ Nodes with an even initial partial view size will have $\left \lceil{\frac{|a|+|
 
 A remarkable difference regarding CYCLON is that it is explicitly allowed to have the same node multiple time in ones partial view. 
 On the other hand, it must be ensured that, after each shuffle, the partial view has exactly the size as described above.
-This is important to keep the number of arcs in the graph constant to the value created by SCAMP. 
+This is important to keep the number of arcs in the graph constant to the value created by SCAMP.
+A shuffle executes the following steps:
 
 \begin{enumerate}
     \item Increase by one the age of all neighbors.
@@ -490,7 +491,7 @@ This is important to keep the number of arcs in the graph constant to the value 
     \item{Replace $b$'s entry with a new enty of age 0 and with $a$'s address.}
     \item{Send the updated subset to peer $b$}
     \item{Receive from $b$ a subset of $l_b$ random peers from its partial view.}
-    \item{Exchange entries pointing at $b$ with nodes that were previously send to $b$ (ordered by age). If not enough nodes are available to exchange all arcs pointing to $a$ create new entires that point to $b$. It is essential that the size of this set does not change.}
+    \item{Exchange entries pointing at $a$ with nodes that were previously send to $b$ (ordered by age). If not enough nodes are available to exchange all arcs pointing to $a$ create new entires that point to $b$. It is essential that the size of this set does not change.}
     \item Remove $b$ and the $l_a-1$ sent peers from $a$`s partial view. 
     \item{Join together the remaining partial view and add the updated received list sent from $b$. If the partial view was odd at the beginning it must be of size $\left \lceil{\frac{|a|+|b|}{2}}\right \rceil$ now, otherwise $\left \lfloor{\frac{|a|+|b|}{2}}\right \rfloor$.}
 \end{enumerate}
@@ -515,7 +516,7 @@ We show that even with the variable partial view size the graph stays connected 
 When two nodes shuffle, the connecting arc is inverted. 
 Additionally, the bigger\footnote{the node with more elements in its partial view} peer will transfer some of its node to the smaller one to seek for an size equilibrium. 
 
-When two subsets $A$ and $B$ are connected by at least one link, the link will be passed around inside the subsets keeping the subsets connected or will simply invert when the linked nodes shuffle thous keeping the graph connected.
+When two subsets $A$ and $B$ are connected by at least one link, the link will be passed around inside the subsets keeping the subsets connected or will simply invert when the linked nodes shuffle thus keeping the graph connected.
 
 We can also show that the property of holding multiple links to the same peer, as described in figure \ref{fig:ex2}, will not affect the overall network in the long run.
 
@@ -552,10 +553,10 @@ The external link potentially replaces one looping link thus either reducing or 
 \section{Handshaking}
 
 As we want to use SCAMPLON in a WebRTC environment we must evaluate its behavior when applied to handshaking.
-As our tests show, SCAMP`s lease mechanism breaks when handshaking is involved and a perfect network cannot be guaranteed.
+As our tests show, SCAMP`s lease mechanism breaks\footnote{See Figure \ref{fig:f_scamp3}} when handshaking is involved and a fail-free network cannot be guaranteed.
 On the other hand, CYCLON just adds a constant overhead on top of its complexity but otherwise stays resistant towards network failure letting it perform similar to its non-handshaking implementation.
 When facing a potentially erroneous network it is advised to use a $c$ value $c>0$ for the introduction part of SCAMPLON to ensure that the number of arcs is around $(c+1) n\log{n}$.
-After the hurdle of introduction is solved, handshaking will play only a minor role as the CYCLON`ic part of the protocol will take over which is more adapted towards handshaking because it only makes use of neighbors in close proximity.
+After the hurdle of introduction is solved, handshaking will play only a minor role as the CYCLON`ic part of the protocol will take over which is more adapted towards handshaking as it only makes use of neighbors in close proximity.
 
 \begin{algorithm*}[!htbp]
     \caption{Active thread in SCAMPLON}
@@ -900,37 +901,35 @@ And, least, the protocol must be implemented in WebRTC to see how it behaves und
 
 \appendix
 
-\chapter{Annotated References}
-\label{app:FichesLecture}
+%\chapter{Annotated References}
+%\label{app:FichesLecture}
 
-\paragraph{\emph{CYCLON: Inexpensive Membership Management for Unstructured P2P Overlays}.}
+%\paragraph{\emph{CYCLON: Inexpensive Membership Management for Unstructured P2P Overlays}.}
 
-Describe rapidly what problem is attacked in the paper (add the reference, e.g. \cite{Voulgaris05cyclon:inexpensive}).
+%Describe rapidly what problem is attacked in the paper (add the reference, e.g. \cite{Voulgaris05cyclon:inexpensive}).
 
-\subparagraph{Summary.}
+%\subparagraph{Summary.}
 
-The summary presents the main idea of the paper and the work conducted \emph{by the authors} up to their conclusions.
+%The summary presents the main idea of the paper and the work conducted \emph{by the authors} up to their conclusions.
 
-\subparagraph{Analysis.}
+%\subparagraph{Analysis.}
 
-It is only during a second phase that you can analyse the contents of the paper, i.e., verify it (errors are always possible in the scientific literature!), express your opinion about the advances claimed by the paper, and establish a connection with your own work.
+%It is only during a second phase that you can analyse the contents of the paper, i.e., verify it (errors are always possible in the scientific literature!), express your opinion about the advances claimed by the paper, and establish a connection with your own work.
 
-\paragraph{\emph{Title of a paper}.}
+%\paragraph{\emph{Title of a paper}.}
 
-Etc.
+%Etc.
 
 \chapter{Schedule}
 
-This appendix is \emph{mandatory}.
+%This appendix is \emph{mandatory}.
 
 Figure~\ref{fig:Drafting} shows the draft schedule establish \emph{a priori}\ldots
 
 \begin{figure*}
-% - Use the starred version in order to put floats on two columns
-% - Possibly, use the "\ifscreen ... \else ... \fi"" alternative to orientate correctly
-%   the planning with respect to the orientation of the paper (cf. below for the auto-evaluation)
    \centering
-      \emph{<Insert a Gantt's diagram.>}
+         %\rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD1}}
+   \rotatebox{270}{\includegraphics[width=15cm]{Images/gantt2}}
    \caption{Drafting}
    \label{fig:Drafting}
 \end{figure*}
@@ -939,63 +938,60 @@ Figure~\ref{fig:Planning} introduce the planning that has been build week after 
 
 \begin{figure*}
    \centering
-      \emph{<Insert a Gantt's diagram.>}
+         %\rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD1}}
+   \rotatebox{270}{\includegraphics[width=15cm]{Images/gantt}}
    \caption{Planning}
    \label{fig:Planning}
 \end{figure*}
 
-Discuss differences between the drafting and the planning as well as lessons learned on the management of a research project or R\&D project.
-
 \chapter{Weekly Reports}
 \label{ann:WeeklyReports}
 
-This appendix is \emph{mandatory}.
-
-\begin{fichesuivi}{September 13, 2010}{September 18, 2010}
-   \tempstravailA{2}{30}
-   \tempstravailB{3}{45}
+\begin{fichesuivi}{September 29, 2014}{October 04, 2014}
+   \tempstravailA{6}{00}
+   \tempstravailB{0}{00}
 
    \begin{travaileffectue}
       \begin{itemize}
-         \item Task 1:  difficulty, simplicity; achieved, advanced up to $t$\%; etc.;
-         \item Task 2:  \ldots;
-         \item Etc.
+          \item Studying paper \emph{LSEQ: an Adaptive Structure for Sequences in Distributed Collaborative Editing}
+         \item Studying paper T-Man: Gossip-based Overlay Topology Management
       \end{itemize}
    \end{travaileffectue}
 
-   \begin{travailnoneffectue}
-      \begin{itemize}
-         \item Task 1:  reasons; postponements, cancellations; etc.;
-         \item Task 2:  \ldots;
-         \item Etc.
-      \end{itemize}
-   \end{travailnoneffectue}
+   %\begin{travailnoneffectue}
+   %   \begin{itemize}
+   %      \item Task 1:  reasons; postponements, cancellations; etc.;
+   %   \end{itemize}
+   %\end{travailnoneffectue}
 
-   \begin{echange}
-      \begin{itemize}
-         \item Questions;
-         \item Answers;
-         \item Clarification, comprehension;
-         \item Choices, orientations, reorientations;
-         \item Etc.
-      \end{itemize}
-   \end{echange}
+   %\begin{echange}
+   %   \begin{itemize}
+   %      \item Questions;
+   %      \item Answers;
+   %      \item Clarification, comprehension;
+   %      \item Choices, orientations, reorientations;
+   %      \item Etc.
+   %   \end{itemize}
+   %\end{echange}
 
    \begin{planification}
       \begin{itemize}
-         \item Researches to be conducted;
-         \item Papers to be read, understood, and analysed;
-         \item Codes to develop;
-         \item Etc.
+         \item Researches to be conducted
       \end{itemize}
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{September 20, 2010}{September 24, 2010}
-   \tempstravailA{7}{50}
-   \tempstravailB{5}{45}
+\begin{fichesuivi}{October 06, 2014}{October 10, 2014}
+   \tempstravailA{8}{30}
+   \tempstravailB{0}{00}
 
    \begin{travaileffectue}
+      \begin{itemize}
+          \item {Paper: The Peer Sampling Service: Experimental Evaluation of Unstructured Gossip-Based Implementations}
+        \item {Paper: Gossip-based broadcast protocols}
+        \item {Technical evaluation: WebRTC}
+        \item {Technical evaluation: PeerJS}
+      \end{itemize}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
@@ -1005,14 +1001,22 @@ This appendix is \emph{mandatory}.
    \end{echange}
 
    \begin{planification}
+      \begin{itemize}
+         \item Researches to be conducted
+        \item Testimplementations with WebRTC 
+     \end{itemize}
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{September 27, 2010}{October 1st, 2010}
-   \tempstravailA{11}{20}
-   \tempstravailB{9}{55}
+\begin{fichesuivi}{October 13, 2014}{October 18, 2014}
+   \tempstravailA{17}{00}
+   \tempstravailB{0}{0}
 
    \begin{travaileffectue}
+      \begin{itemize}
+   \item {Testing PeerJs -> Implementation of Chat prototype}
+   \item {Papers: Detecting Causal Relationships in Distributed Computations: In Search of the Holy Grail}
+     \end{itemize}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
@@ -1022,14 +1026,78 @@ This appendix is \emph{mandatory}.
    \end{echange}
 
    \begin{planification}
+      \begin{itemize}
+   \item {prototype for Peer-Samping-Service}
+   \item {prototype for T-Man}
+     \end{itemize}
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{14}{30}
-   \tempstravailB{9}{20}
+\begin{fichesuivi}{October 20, 204}{October 25, 2014}
+   \tempstravailA{22}{30}
+   \tempstravailB{0}{00}
 
    \begin{travaileffectue}
+      \begin{itemize}
+          \item {Implementing prototype for Peer-Samping-Service (RSP) based on PeerJS}
+   \item {Paper: A Robust and Scalable Peer-to-Peer Gossiping Protocol}
+   \item {Paper: SCAMP: Peer-to-peer lightweight membership service for large-scale group communication}
+   \item{Buffer Management in Probabilistic Peer-to-Peer Communication Protocols}
+     \end{itemize}
+   \end{travaileffectue}
+
+   \begin{travailnoneffectue}
+       \begin{itemize}
+           \item{Prototype for T-Man: Implementation of RSP took longer than expected. }
+        \end{itemize}
+   \end{travailnoneffectue}
+
+   \begin{echange}
+   \end{echange}
+
+   \begin{planification}
+      \begin{itemize}
+   \item {prototype for T-Man}
+     \end{itemize}
+   \end{planification}
+\end{fichesuivi}
+
+\begin{fichesuivi}{October 27, 2014}{01 November, 2014}
+    \tempstravailA{6}{00}
+   \tempstravailB{0}{00}
+
+   \begin{travaileffectue}
+      \begin{itemize}
+          \item {Implementation of T-Man with PeerJS (needs RPS)}
+     \end{itemize}
+   \end{travaileffectue}
+
+   \begin{travailnoneffectue}
+      \begin{itemize}
+          \item {still some problems with RPS (create new unit tests)}
+     \end{itemize}
+   \end{travailnoneffectue}
+
+   \begin{echange}
+   \end{echange}
+
+   \begin{planification}
+      \begin{itemize}
+         \item Researches to be conducted
+   \item {testing prototype for T-Man}
+     \end{itemize}
+   \end{planification}
+\end{fichesuivi}
+
+\begin{fichesuivi}{November 03, 2014}{November 06, 2014}
+   \tempstravailA{14}{00}
+   \tempstravailB{00}{00}
+
+   \begin{travaileffectue}
+      \begin{itemize}
+          \item {Paper: CYCLON: Inexpensive Membership Management for Unstructured P2P Overlays}
+          \item {Test: Implementation of T-Man with PeerJS (needs RPS)}
+     \end{itemize}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
@@ -1039,14 +1107,21 @@ This appendix is \emph{mandatory}.
    \end{echange}
 
    \begin{planification}
+      \begin{itemize}
+         \item Researches to be conducted
+     \end{itemize}
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{12}{30}
-   \tempstravailB{3}{40}
+\begin{fichesuivi}{November 10, 2014}{November 15, 2014}
+   \tempstravailA{20}{00}
+   \tempstravailB{0}{00}
 
    \begin{travaileffectue}
+      \begin{itemize}
+        \item {Paper: Lightweight Probabilistic Broadcast}
+        \item {Start writing report: "A Scalable Network Topology for Massive Collaborative Editing"}
+    \end{itemize}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
@@ -1056,14 +1131,47 @@ This appendix is \emph{mandatory}.
    \end{echange}
 
    \begin{planification}
+      \begin{itemize}
+         \item Start with a draft of the report
+         \item Researches to be conducted
+      \end{itemize}
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{7}{10}
-   \tempstravailB{14}{30}
+\begin{fichesuivi}{November 17, 2014}{November 22, 2014}
+    \tempstravailA{30}{30}
+   \tempstravailB{0}{00}
 
    \begin{travaileffectue}
+      \begin{itemize}
+   \item {Write Introduction of Paper: "Topology Management for Massive Collaborative Editing"}
+      \end{itemize}
+   \end{travaileffectue}
+
+      \begin{itemize}
+          \item {Change the reasearch topic: We figured that some fundamental issues MUST be addressed before the old topic (Topology Management). New Topic: Handshaking gossiping, as this is essential for the implementation.}
+      \end{itemize}
+   \begin{travailnoneffectue}
+   \end{travailnoneffectue}
+
+   \begin{echange}
+   \end{echange}
+
+   \begin{planification}
+      \begin{itemize}
+         \item Write the report
+      \end{itemize}
+   \end{planification}
+\end{fichesuivi}
+
+\begin{fichesuivi}{November 24, 2014}{November 28, 2014}
+   \tempstravailA{30}{30}
+   \tempstravailB{0}{00}
+
+   \begin{travaileffectue}
+      \begin{itemize}
+   \item {Write report: "Massive Broadcasting with WebRTC"}
+      \end{itemize}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
@@ -1073,17 +1181,55 @@ This appendix is \emph{mandatory}.
    \end{echange}
 
    \begin{planification}
+      \begin{itemize}
+   \item {Evaluating the different algorithms under WebRTC}
+      \end{itemize}
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{9}{15}
-   \tempstravailB{13}{45}
+\begin{fichesuivi}{December 1, 2014}{December 5, 2014}
+   \tempstravailA{30}{30}
+   \tempstravailB{0}{0}
 
    \begin{travaileffectue}
+   \begin{itemize}
+   \item {Start implementing Handshaking-Prototype in WebRTC}
+   \item {Start implementing CYCLON-Prototype in WebRTC (based on the Handshaking-Prototype)}
+   \item {A SCAMP-Prototype for WebRTC is developed in parallel by Brice Nedelec}
+      \end{itemize}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
+    \begin{itemize}
+   \item {Implementation Newscast}
+      \end{itemize}
+   \end{travailnoneffectue}
+
+   \begin{echange}
+   \begin{itemize}
+   \item {We switched the PeerSim implementation with the actual WebRTC implementation to better fit into the current workflow with the collaborative editor. }
+      \end{itemize}
+   \end{echange}
+
+   \begin{planification}
+   \end{planification}
+\end{fichesuivi}
+
+\begin{fichesuivi}{December 8, 2014}{December 12, 2014}
+   \tempstravailA{10}{0}
+   \tempstravailB{0}{0}
+
+   \begin{travaileffectue}
+\begin{itemize}
+\item {Bugfixing Handshaking-Prototype in WebRTC}
+   \item {Bugfixing in CYCLON WebRTC - massive problems with concurrency as the shuffling function must be split in two parts (sending and receiving).}
+      \end{itemize}
+   \end{travaileffectue}
+
+   \begin{travailnoneffectue}
+   \begin{itemize}
+   \item {Implementation Newscast}
+      \end{itemize}
    \end{travailnoneffectue}
 
    \begin{echange}
@@ -1093,48 +1239,44 @@ This appendix is \emph{mandatory}.
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{18}{40}
-   \tempstravailB{1}{25}
-
-   \begin{travaileffectue}
-   \end{travaileffectue}
-
-   \begin{travailnoneffectue}
-   \end{travailnoneffectue}
-
-   \begin{echange}
-   \end{echange}
-
-   \begin{planification}
-   \end{planification}
-\end{fichesuivi}
-
-\begin{fichesuivi}{}{}
-   \tempstravailA{21}{40}
-   \tempstravailB{17}{10}
-
-   \begin{travaileffectue}
-   \end{travaileffectue}
-
-   \begin{travailnoneffectue}
-   \end{travailnoneffectue}
-
-   \begin{echange}
-   \end{echange}
-
-   \begin{planification}
-   \end{planification}
-\end{fichesuivi}
-
-\begin{fichesuivi}{}{}
+\begin{fichesuivi}{December 15, 2014}{December 19, 2014}
    \tempstravailA{4}{30}
-   \tempstravailB{8}{15}
+   \tempstravailB{0}{0}
+
+   \begin{travaileffectue}
+   \begin{itemize}
+   \item {Bugfixing Handshaking-Prototype in WebRTC}
+   \item {Bugfixing in CYCLON WebRTC - massive problems with concurrency as the shuffling function must be split in two parts (sending and receiving).}
+      \end{itemize}
+   \end{travaileffectue}
+
+   \begin{travailnoneffectue}
+   \begin{itemize}
+   \item {Implementation Newscast, We decided to skip this algorithm as it was only used to show a "poorly" performing algorithm}
+      \end{itemize}
+   \end{travailnoneffectue}
+
+   \begin{echange}
+   \begin{itemize}
+   \item {We dropped Newscast from our research}
+      \end{itemize}
+   \end{echange}
+
+   \begin{planification}
+   \end{planification}
+\end{fichesuivi}
+
+\begin{fichesuivi}{December 22, 2014}{December 26, 2014}
+   \tempstravailA{0}{00}
+   \tempstravailB{0}{00}
 
    \begin{travaileffectue}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
+   \begin{itemize}
+   \item {Bugfixing in CYCLON WebRTC - massive problems with concurrency as the shuffling function must be split in two parts (sending and receiving).}
+      \end{itemize}
    \end{travailnoneffectue}
 
    \begin{echange}
@@ -1144,14 +1286,17 @@ This appendix is \emph{mandatory}.
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{10}{10}
-   \tempstravailB{11}{00}
+\begin{fichesuivi}{December 29, 2014}{January 2, 2015}
+   \tempstravailA{0}{0}
+   \tempstravailB{0}{0}
 
    \begin{travaileffectue}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
+   \begin{itemize}
+   \item {Bugfixing in CYCLON WebRTC - massive problems with concurrency as the shuffling function must be split in two parts (sending and receiving).}
+      \end{itemize}
    \end{travailnoneffectue}
 
    \begin{echange}
@@ -1161,79 +1306,138 @@ This appendix is \emph{mandatory}.
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{3}{30}
-   \tempstravailB{2}{10}
+\begin{fichesuivi}{January 5, 2015}{January 9, 2015}
+   \tempstravailA{3}{00}
+   \tempstravailB{0}{0}
 
    \begin{travaileffectue}
+   \begin{itemize}
+   \item {Bugfixing in CYCLON WebRTC - massive problems with concurrency as the shuffling function must be split in two parts (sending and receiving). Current solution: Locking.}
+      \end{itemize}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
+   \begin{itemize}
+   \item {Applying testing framework for WebRTC to measure the protocols. We decided to freeze this part and remove it from the paper as the WebRTC implementations (SCAMP and CYCLON) where more complex than expected }
+      \end{itemize}
    \end{travailnoneffectue}
 
    \begin{echange}
    \end{echange}
-
+\begin{itemize}
+   \item {Start implementing SCAMP (no handshakes) in PeerSim}
+   \item {Start implementing SCAMP (handshakes) in PeerSim}
+   \item {Start implementing CYCLON (no handshakes) in PeerSim}
+   \item {Start implementing CYCLON (handshakes) in PeerSim}
+      \end{itemize}
    \begin{planification}
+
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{10}{00}
-   \tempstravailB{10}{00}
-
-   \begin{travaileffectue}
-   \end{travaileffectue}
-
-   \begin{travailnoneffectue}
-   \end{travailnoneffectue}
-
-   \begin{echange}
-   \end{echange}
-
-   \begin{planification}
-   \end{planification}
-\end{fichesuivi}
-
-\begin{fichesuivi}{}{}
-   \tempstravailA{3}{45}
-   \tempstravailB{10}{20}
-
-   \begin{travaileffectue}
-   \end{travaileffectue}
-
-   \begin{travailnoneffectue}
-   \end{travailnoneffectue}
-
-   \begin{echange}
-   \end{echange}
-
-   \begin{planification}
-   \end{planification}
-\end{fichesuivi}
-
-\begin{fichesuivi}{}{}
-   \tempstravailA{16}{30}
-   \tempstravailB{18}{15}
-
-   \begin{travaileffectue}
-   \end{travaileffectue}
-
-   \begin{travailnoneffectue}
-   \end{travailnoneffectue}
-
-   \begin{echange}
-   \end{echange}
-
-   \begin{planification}
-   \end{planification}
-\end{fichesuivi}
-
-\begin{fichesuivi}{}{}
+\begin{fichesuivi}{January 12, 2015}{January 16, 2015}
    \tempstravailA{14}{30}
-   \tempstravailB{22}{30}
+   \tempstravailB{0}{0}
 
    \begin{travaileffectue}
+   \begin{itemize}
+   \item {Start implementing CYCLON (handshakes) in PeerSim}
+   \item {implementing CYCLON (no handshakes) in PeerSim}
+      \end{itemize}
+   \end{travaileffectue}
+
+   \begin{travailnoneffectue}
+   
+   \end{travailnoneffectue}
+
+   \begin{echange}
+   \begin{itemize}
+   \item {Start implementing SCAMP (no handshakes) in PeerSim}
+   \item {Start implementing SCAMP (handshakes) in PeerSim}
+      \end{itemize}
+   \end{echange}
+
+   \begin{planification}
+   \begin{itemize}
+   \item {Start measuring the PeerSim implementations}
+      \end{itemize}
+   \end{planification}
+\end{fichesuivi}
+
+\begin{fichesuivi}{January 19, 2015}{January 24, 2015}
+   \tempstravailA{25}{30}
+   \tempstravailB{0}{0}
+
+   \begin{travaileffectue}
+   \begin{itemize}
+   \item {Start implementing CYCLON (handshakes) in PeerSim}
+   \item {implementing CYCLON (no handshakes) in PeerSim}
+      \end{itemize}
+   \end{travaileffectue}
+
+   \begin{travailnoneffectue}
+   \end{travailnoneffectue}
+
+   \begin{echange}
+   \end{echange}
+
+   \begin{planification}
+   \begin{itemize}
+   \item {Start implementing SCAMP (no handshakes) in PeerSim}
+   \item {Start implementing SCAMP (handshakes) in PeerSim}
+   \item {Start implementing SCAMPLON in PeerSim}
+      \end{itemize}
+   \end{planification}
+\end{fichesuivi}
+
+\begin{fichesuivi}{January 26, 2015}{January 30, 2015}
+   \tempstravailA{15}{30}
+   \tempstravailB{0}{0}
+
+   \begin{travaileffectue}
+   \begin{itemize}
+   \item {Start implementing SCAMP (no handshakes) in PeerSim}
+   \item {Start implementing SCAMP (handshakes) in PeerSim}
+   \item {Bufixes CYCLON (no handshakes) in PeerSim}
+   \item {Bufixes CYCLON (handshakes) in PeerSim}
+   \item {Start implementing SCAMPLON in PeerSim}
+   \item {Measuring the PeerSim implementations}
+   \item {Write report}
+      \end{itemize}
+   \end{travaileffectue}
+
+   \begin{travailnoneffectue}
+   \end{travailnoneffectue}
+
+   \begin{echange}
+   \end{echange}
+
+   \begin{planification}
+   \begin{itemize}
+   \item {Bufixes SCAMP (no handshakes) in PeerSim}
+   \item {Bufixes SCAMP (handshakes) in PeerSim}
+   \item {Bufixes CYCLON (no handshakes) in PeerSim}
+   \item {Bufixes CYCLON (handshakes) in PeerSim}
+    \item {Bugfixes implementing SCAMPLON in PeerSim}
+   \item {Measuring the PeerSim implementations}
+   \item {Write report}
+      \end{itemize}
+   \end{planification}
+\end{fichesuivi}
+
+\begin{fichesuivi}{February 2, 2015}{February 6, 2015}
+   \tempstravailA{35}{30}
+   \tempstravailB{0}{0}
+
+   \begin{travaileffectue}
+   \begin{itemize}
+   \item {Bufixes SCAMP (no handshakes) in PeerSim}
+   \item {Bufixes SCAMP (handshakes) in PeerSim}
+   \item {Bufixes CYCLON (no handshakes) in PeerSim}
+   \item {Bufixes CYCLON (handshakes) in PeerSim}
+   \item {Measuring the PeerSim implementations}
+   \item {Write report}
+      \end{itemize}
    \end{travaileffectue}
 
    \begin{travailnoneffectue}
@@ -1246,51 +1450,14 @@ This appendix is \emph{mandatory}.
    \end{planification}
 \end{fichesuivi}
 
-\begin{fichesuivi}{}{}
-   \tempstravailA{17}{45}
-   \tempstravailB{12}{50}
-
-   \begin{travaileffectue}
-   \end{travaileffectue}
-
-   \begin{travailnoneffectue}
-   \end{travailnoneffectue}
-
-   \begin{echange}
-   \end{echange}
-
-   \begin{planification}
-   \end{planification}
-\end{fichesuivi}
-
-\begin{fichesuivi}{}{}
-   \tempstravailA{13}{10}
-   \tempstravailB{9}{30}
-
-   \begin{travaileffectue}
-   \end{travaileffectue}
-
-   \begin{travailnoneffectue}
-   \end{travailnoneffectue}
-
-   \begin{echange}
-   \end{echange}
-
-   \begin{planification}
-   \end{planification}
-\end{fichesuivi}
-
-The summary table of work dedicated to the project is \emph{mandatory}.
-If you do not use the provided weekly report sheets, you must establish the summary by yourself.
-Otherwise, the simple command that follows in the source code (\verb+\printweeksummary+) does all the job of generating the table along with all the hyperlinks to the weekly reports.
 
 \printweeksummary
 
 \chapter{Self-assessment}
 
-This appendix is \emph{mandatory}.
+\section{First Half}
 
-Figure~\ref{fig:IntermediateAutoEvaluation} enumerates a number of important points related to the three aspects of the work:
+%Figure~\ref{fig:IntermediateAutoEvaluation} enumerates a number of important points related to the three aspects of the work:
 \begin{enumerate}
    \item report;
    \item oral presentation;
@@ -1305,33 +1472,38 @@ This allows to evaluation your own level of satisfcation at the end of the first
 
 You can discuss in some details these various points.
 
-\begin{figure*}
-   \centering
-      \ifscreen % macro TeX (issue de la classe report-rd-info.cls) permettant d'ajuster le contenu en fonction du l'orientation du document (<< screen >> ou pas)
-         \rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD1}}
-      \else
-         \includegraphics[width=0.9\textwidth]{Images/Grille-Evaluation-PRD1}
-      \fi
-   \caption{Points à contrôler à l'issue de la phase I}
-   \label{fig:IntermediateAutoEvaluation}
-\end{figure*}
+\textbf{General remark}
 
-Figure~\ref{fig:FinalAutoEvaluation} provides the same kind of evaluation for the second part of the project, i.e.:
-\begin{enumerate}
-   \item detailed design;
-   \item development;
-   \item receipt.
-\end{enumerate}
+While trying to implement certain Algorithms with the chosen technology we noticed a signifcant problem in the initial project boundaries.
+The initial research topic was tackling topology management in a peer-to-peer network.
+The goal was to create a single network for managing multiple documents for a massive collaborative editor - topolgy management and social network algorithms would make sure that the number of unnecassary messages is low and dissemination is fast.
 
-\begin{figure*}
-   \centering
-      \ifscreen
-         \rotatebox{90}{\includegraphics[width=0.9\textheight]{Images/Grille-Evaluation-PRD2}}
-      \else
-         \includegraphics[width=0.9\textwidth]{Images/Grille-Evaluation-PRD2}
-      \fi
-   \caption{Points à contrôler à l'issue de la phase II}
-   \label{fig:FinalAutoEvaluation}
-\end{figure*}
+However, this algorithms are build up on basic gossip protocols (like peer sampling service) and while implementing prototypes we realized that this basic algorithms will behave different in the infrastructure we want run and that they change the complexity of a connection.
+This lead us to abandon the initial research topic and instead focus on this new, elementary problem.
+
+\textbf{preliminary study}
+
+...
+
+\textbf{bibliographic study}
+
+As said in \emph{General remark}, we changed the research topic mid-project. Luckily most of the papers where still relevant, as the major topic is still gossiping.
+
+\textbf{general design of solution}
+
+There is no solution so far, rather, we have to evaluate which of the gossiping algorithms hold up best when applied with handshake.
+
+\section{Second Half}
+
+I want to remark that I totally underestimated the complexity of implementing the gossiping algorithms in real world applications.
+While in the papers the implementation seems to be easy in reality many more factors must be considered, \emph{especially} when it comes to parallelism.
+This hit me twice: first in the WebRTC implementation (which is much more complex than the PeerSim-Java implementation) but also in the PeerSim implementation -> This is way it took me way longer than I planned initially.
+
+Unfortunatly, I could not implement and measure the behavior of the algorithms on WebRTC yet.
+However, the outcome of the new Algorithm SCAMPLON was a positive surprise as such a good result was net expected - as it allows double/triple/... edges towards the same peer we were expecting  it to degrade and and become quite clustered with high clustering coefficient: but the opposite was the case!
+The next step must be to transform the Algorithm into a handshaking version and validate that its properties stay true.
+Than it can be transformed into WebRTC and further tests can be applied.
+
+Last but not least: I was fighting with the latex and I could not fix the following issues: I could not remove the second "Writer" and, in Abstract, the Keywords are heavily misaligned.
 
 \end{document}

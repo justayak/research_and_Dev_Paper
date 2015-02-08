@@ -1,0 +1,14 @@
+set terminal pngcairo  transparent enhanced font "arial,10" fontscale 1.0 size 500, 200
+set output 'simple.1.png'
+# put it to eps (vectors)
+# change to black and white
+set key inside left top vertical Right noreverse enhanced autotitles box linetype -1 linewidth 1.000
+
+#set pointintervalbox 1
+
+set style line 1 lc rgb '#396AB1' lt 1 lw 4 pt 3
+set style line 2 lc rgb '#3E9651' lt 4 lw 4 pt 3
+set style line 3 lc rgb 'red' lt 4 lw 2 pt 3
+
+plot [0:400] "cyclon.txt" using ($0+1):1 title "CYCLON" w l ls 1, \
+    "scamp.txt" using ($0+1):1 title "SCAMPLON" w l ls 2
