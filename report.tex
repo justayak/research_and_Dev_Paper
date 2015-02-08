@@ -15,7 +15,7 @@
 
 \begin{document}
 
-\title{A Polytech Research Report}
+\title{SCAMPLON: A Peer Sampling Service for WebRTC}
 \subtitle{A Model and Short Guide}
 
 \authorA{Julian}{Tanke}
@@ -47,31 +47,45 @@
 
 \begin{abstract}
 %\small % Comment it out should the abstract by slightly too long to fit in the page.
-   As the name suggests, the abstract is a very short but informative piece of information about everything you did in this work, i.e., successively the description of the problem at hand, the objectives, the main point of the state-of-the-art, the choices made, the conceptual developments, the conducted experiments, results and interpretations, the new issues.
 
-   It is the last thing to write!
+WebRTC allows web browsers to directly communicate with no server in between which enables massive, distributed applications for the web that are scalable, responsive and failure resistant.
+A general paradigm for information dissemination in large distributed systems is the gossip-based communication.
+The core of gossiping protocols is the \emph{peer sampling service} that provide every node with random peers to exchange information with.
+Peer sampling services do not necessarily rely on global knowledge, instead there are many algorithms that only need local information to provide uniform random samples - for example SCAMP and CYCLON.
+This protocols assume that peers are directly addressable - however this is not possible in WebRTC.
+Instead, a handshake must be executed over a well-known signaling service whenever a new connection is established.
+As a central service significantly decreases the scalability we propose to carry it over into the distributed system - if this is done a node only needs to access the central service to enter the network.
+Nodes that are already member of the system can use other peers to function as their signaling service to establish connections to other nodes within the network - this way the protocol stays scalable.
+
+We evaluate CYCLON and SCAMP in a handshaking environment.
+Furthermore, we propose SCAMPLON, a new membership protocol composite of parts of SCAMP and parts of CYCLON.
+SCAMPLON provides good properties and is not just applicable for WebRTC and handshaking but can also be used more generally as a generic peer sampling service.
+
+
+   \subsubsection {KEY WORDS}
+   Membership management; peer-to-peer; epidemic/gossiping protocols; Scalability; random graphs
+
 \end{abstract}
 
-\begin{classification}
-%\small % Idem
-   Bibliographic indexing is required. Use the ACM thesaurus:  See \url{http://www.acm.org/about/class/}. (The following example is based on the 1998 version, where general terms and additional key words are optional.)
+%\begin{classification}
+%   Bibliographic indexing is required. Use the ACM thesaurus:  See \url{http://www.acm.org/about/class/}. (The following example is based on the 1998 version, where general terms and additional key words are optional.)
 
-   \category{H.2.8}{Database Applications}{Image databases}
-   \category{H.3.3}{Information Search and Retrieval}{Clustering, Information filtering, Relevance feedback}
-   \category{H.3.7}{Digital Libraries}{User issues}
-   \category{I.5.3}{Clustering}{Algorithms, Similarity measures}
-   \category{I.4.10}{Image Representation}{Statistical, Multidimensional}
-   \terms{Algorithms, Performances, Experiments, Human factors, Verification.}
-   \keywords{Content-based image retrieval system, Classification, Feedback loop, Supervised learning.}
-\end{classification}
+%   \category{H.2.8}{Database Applications}{Image databases}
+%   \category{H.3.3}{Information Search and Retrieval}{Clustering, Information filtering, Relevance feedback}
+%   \category{H.3.7}{Digital Libraries}{User issues}
+%   \category{I.5.3}{Clustering}{Algorithms, Similarity measures}
+%   \category{I.4.10}{Image Representation}{Statistical, Multidimensional}
+%   \terms{Algorithms, Performances, Experiments, Human factors, Verification.}
+%   \keywords{Content-based image retrieval system, Classification, Feedback loop, Supervised learning.}
+%\end{classification}
 
 \maketitle
 
 %--------------------------------------------------------------------------------
 
-\begin{acknowledgements}
-   The usual place of acknowledgements, if this pleases you or if the work has been conducted as part of a larger endeavour.
-\end{acknowledgements}
+%\begin{acknowledgements}
+%   The usual place of acknowledgements, if this pleases you or if the work has been conducted as part of a larger endeavour.
+%\end{acknowledgements}
 
 %--------------------------------------------------------------------------------
 
@@ -81,10 +95,10 @@
 
 %--------------------------------------------------------------------------------
 
-\chapter*{Preface}
-\addcontentsline{toc}{chapter}{Preface}
+%\chapter*{Preface}
+%\addcontentsline{toc}{chapter}{Preface}
 
-TODO
+%TODO
 %--------------------------------------------------------------------------------
 
 \chapter{Introduction}
@@ -98,6 +112,7 @@ Traditionally, gossip protocols are used to implement broadcast in decentralized
 This protocols have been used in a various number of large scale systems serving an array of problem settings including information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470} and network management \cite{conf/dsom/VoulgarisS03}.
 Peers are highly autonomous and independent, which allows the algorithms to be simple when compared to hierarchical approaches.
 This protocols can easily scale to millions of peers which can join and leave without significantly disrupting the service.
+The hearth of each gossip protocol is its fundamental distributed abstraction: the peer sampling service\cite{Jelasity:2004:PSS:1045658.1045666}.
 
 \section{Statement of the problem}
 
@@ -106,20 +121,21 @@ Many gossip protocols build up upon the premise that the peers can interconnect 
 Unfortunately, certain efforts must be taken to establish a peer-to-peer connection with WebRTC:
 as entities in WebRTC cannot directly address each other due to the network layout of the Internet, a handshake, consisting of an offer by one client and a responding answer by the other, must be performed.
 This process must be hoist by a well-known service in between, which we will call the \emph{signaling service}.
-Furthermore, the handshake radically changes the communication complexity as connecting to new peers becomes more expansive and error-prone.
+Furthermore, the handshake potentially changes the communication complexity as connecting to new peers becomes more expansive and error-prone.
 
 \section{Objectives}
 
-In this report we evaluate the cost of two well-known gossip algorithms, CYCLON\cite{Voulgaris05cyclon:inexpensive} and SCAMP\cite{Ganesh:2001:SPL:648089.747488}, in a WebRTC infrastructure.
+In this report we evaluate the cost of two well-known peer sampling services, CYCLON\cite{Voulgaris05cyclon:inexpensive} and SCAMP\cite{Ganesh:2001:SPL:648089.747488}, in a handshaking infrastructure\footnote{Direct addressing is not possible. Instead, a connection between peers must be established over a signaling service}.
 We provide a technique to minimize the number of connections to the well-known signaling service, and, 
-additionally, we propose a new algorithm that merges the advantages of CYCLON and SCAMP regarding network topology and robustness towards WebRTC.
+additionally, we propose SCAMPLON, a new algorithm that merges the advantages of CYCLON and SCAMP regarding network topology and robustness towards handshaking.
 
 \section{Work achieved}
 
 We show that CYCLON can be easily deployed in a WebRTC environment as it only communicates with other nodes in close proximity reducing the handshaking overhead.
-We also show that the lease-mechanism in SCAMP can be significantly disturbed under churn or network failure.
+We also show that the lease-mechanism in SCAMP can be significantly disturbed under network failure\footnote{See Figure \ref{fig:f_scamp3}}.
 We provide a WebRTC library\footnote{https://github.com/justayak/handshake} that allows nodes inside a WebRTC network to host connections between each other without the need of an external service. This minimizes the number of connections towards the signaling service as it is only needed to introduce a new node to an existing network.
-Furthermore, we propose an algorithm that combines the good properties of CYCLON and SCAMP and removes some of their problems, namely: SCAMP is used to enter or remove a node from the network, thus providing a good random starting distribution and an adaptive partial view size, but use CYCLON to balance the graph afterwards to exploit its close-proximity exchanges.
+Furthermore, we propose an algorithm that combines the good properties of CYCLON and SCAMP and removes some of their problems.
+SCAMP is used to enter and remove nodes from the network, thus providing a good random starting distribution and an adaptive partial view size, but uses CYCLON to balance the graph afterwards to exploit its close-proximity exchanges.
 
 \section{Contribution}
 
@@ -127,16 +143,16 @@ Gossip protocols that are designed for the internet have already been introduced
 However, this protocols assume that a connection can be established with direct addressing, ignoring the limitations mentioned above.
 On the other side there are implementations of peer-to-peer networks on top of WebRTC\footnote{http://peerjs.com/} already available. 
 Nonetheless they lack truly massive scalability as they rely on a single centralized signaling service to host and maintain the network.
-Our contribution is an algorithm that is truly scalable in a WebRTC environment.
+Our contribution is an algorithm, SCAMPLON, that is truly scalable in a WebRTC environment.
+Furthermore, the SCAMPLON-protocol is not limited for use in handshaking environments but can also be easily applied in general gossiping algorithms.
 
 \section{Report organisation}
 
 The remainder of this paper is structured as follows: 
 Chapter~\ref{chap:Motiv} explains the technology in more depth and provides an example application. 
 Chapter~\ref{chap:StateOfTheArt} studies the gossip protocols CYCLON and SCAMP. 
-In Chapter~\ref{chap:Proposals} we will introduce an example application.
-Furthermore we will outline the requirements for a handshaking gossip protocol.
-Chapter~\ref{chap:Experiments} follows a development, experiment, and analysis path in order to quantify the theoretical results.
+In Chapter~\ref{chap:Proposals}  we will propose SCAMPLON and describe how it differs from the other two protocols.
+Chapter~\ref{chap:Experiments} first evaluates the different behaviors of SCAMP and CYCON with handshaking. We than compare SCAMPLON and CYCLON and show that our algorithm provides better overall properties under normal network conditions.
 Finally, the conclusion summarises the work and introduce new research issues that are worth pursuing.
 
 %-------------------------------------------------------------------------------------------------------------
@@ -199,7 +215,7 @@ This chapter introduces fundamental algorithms and concepts.
 
 \section{Gossip Protocol}
 
-Gossip, also revered to as \emph{epidemic dissemination}, is a  communication protocol initially inspired by observing of how gossips spread in social networks or how diseases spread over a population.
+Gossip, also referred to as \emph{epidemic dissemination}, is a  communication protocol initially inspired by observing of how gossips spread in social networks or how diseases spread over a population.
 It trades reliability guarantees against scalability properties \cite{Eugster:2003:LPB:945506.945507} and it has been applied to various large scale systems, with the purpose of information dissemination \cite{Demers:1987:EAR:41840.41841}, information aggregation \cite{Jelasity:2005:GAL:1082469.1082470}, network management \cite{conf/dsom/VoulgarisS03} and many more.
 
 The basic idea behind gossip works as follows:
@@ -626,7 +642,7 @@ However, SCAMP`s subscription can easily consume more than three cycles as both 
 
 Peers communicate between each other with messages.
 We also test the behavior of the algorithms against a specific failing quota of these messages meaning that a certain percentage of them will not reach their target peer.
-With this experiments we hope to get some insight into the failure resistance of the different protocols. 
+With this experiments we hope to get some insight into the failure resistance of the different protocols.
 
 \section{Handshaking}
 
@@ -648,7 +664,7 @@ In the following we describe the experiments in more detail:
 
 % OBJECTIVE
 The \emph{clustering coefficient} is a measure for a graphs tendency to contain cliques as well as for its transitivity.
-We calculate the average clustering coefficient by summing together all local clustering coefficients and dividing by the number of nodes $n$. 
+We calculate the average clustering coefficient by summing together all local clustering coefficients which then gets divided by the number of nodes $n$. 
 
 $\bar{C} = \frac{1}{n}\sum\limits_{i=1}^{n} C_i$
 
@@ -661,12 +677,11 @@ Another disadvantage of a highly clustered network is that information dissemina
 
 % RESULT
 
-Figure \ref{fig:cluster_cyclon3} show the average clustering coefficient with CYCLON, run over $2500$ cycles. The x-axis shows the average cluster coefficient while the y-axis shows the number of cycles.
-When no network errors occur, both implementations, with and without handshaking, behave very similar.
+Figure \ref{fig:cluster_cyclon3} shows the average clustering coefficient with CYCLON, run over $2500$ cycles. The x-axis shows the average cluster coefficient while the y-axis shows the number of cycles.
+Both implementations, with and without handshaking, behave very similar when no network errors occur.
 It should be noted that the handshaking algorithm converges towards a slightly higher limit than the non-handshaking version.
 When network errors are introduced, the handshaking variant degrades faster than the non-handshaking version.
-As handshaking needs more hops, heck has more sources of error, this is an expected result.
-However, it can be stated that handshaking CYCLON behaves robust and very similar to its non-handshaking counterpart.
+
 
 \begin{figure}[H]
     \centering
@@ -676,208 +691,200 @@ However, it can be stated that handshaking CYCLON behaves robust and very simila
     \label{fig:cluster_cyclon3}
 \end{figure}
 
-
-% REASON
-
 Figure \ref{fig:cluster_scamp3} show the average clustering coefficient with SCAMP, run over $100000$ cycles (note that the x-axis is scaled by $(* 100)$).
 The first thing to note is that SCAMP needs notably more cycles to converge than CYCLON.
-While the graph with CYCLON converges after roughly 200 cycles, the graph fully converges after around 30000 cycles.
-
-To rebalance the graph, SCAMP relies on its lease mechanism where a node has a certain lifespan and, after its lifespan is over, it gets removed from other peers view, removes itself from the network and reintroduces itself through a node in its partial view.
-
-
-%\begin{figure}[H]
-%    \centering
-%    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_cluster}
-%    \caption{average clustering of the CYCLON protocol (no failure)}
-%    \label{fig:cluster_cyclon}
-%\end{figure}
-
-%\begin{figure}[H]
-%    \centering
-%    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_clusterX_f10}
-%    \caption{average clustering of the CYCLON protocol (10\% failure)}
-%    \label{fig:cluster_cyclon2}
-%\end{figure}
-
-%\begin{figure}[H]
-%    \centering
-%    \includegraphics[width=7.3cm]{Images/statistics/cyclon_1000_c20/mean_cluster_fail_40X}
-%    \caption{average clustering of the CYCLON protocol (40\% failure)}
-%    \label{fig:cluster_cyclon3}
-%\end{figure}
-
+While CYCLON converges after roughly 200 cycles, SCAMP fully converges only after around 20000 cycles.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=9cm]{Images/statistics/scamp_1000_c2/cluster/all}
-    \caption{average clustering of the SCAMP protocol (30\% failure)}
+    \caption{average clustering of the SCAMP protocol. The x-axis denotes the number of cycles while the y-axis denotes the cluster coefficient.}
     \label{fig:cluster_scamp3}
 \end{figure}
 
+SCAMP relies on its lease mechanism to rebalance the graph where a node has a certain lifespan and, after the lifespan is over, it gets removed from other peers view, removes itself from the network and reintroduces itself through a node in its partial view.
 
-%\begin{figure}[H]
- %   \centering
- %   \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp1}
- %   \caption{average clustering of the SCAMP protocol (no failure)}
- %   \label{fig:cluster_scamp1}
-%\end{figure}
+SCAMP with handshaking converges slightly slower and to a higher value than the non-handshaking version when all messages are delivered.
+However, when errors are introduced, the handshaking version yields lower values than its non-handshaking version.
+When the error rate is set to 30\% SCAMP`s handshaking version does not deliver any useful values anymore.
 
-%\begin{figure}[H]
-%    \centering
-%    \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp2}
-%    \caption{average clustering of the SCAMP protocol (10\% failure)}
-%    \label{fig:cluster_scamp2}
-%\end{figure}
+% REASON
 
-%\begin{figure}[H]
-%    \centering
-%    \includegraphics[width=7.3cm]{Images/statistics/scamp_1000_c2/cluster/scamp3}
-%    \caption{average clustering of the SCAMP protocol (30\% failure)}
-%    \label{fig:cluster_scamp3}
-%\end{figure}
-
-The lifespan must be selected carefully as we want to avoid large chunks of the network to leave the network in parallel. 
+There are several explanations for the results: as handshaking needs more hops, heck has more sources of error, it is expected that those versions perform worse than the non-handshaking protocols meaning that they take longer to converge to optimal properties and that their optimal properties are not as good as those generated with non-handshaking protocols.
+CYCLON`s results perfectly follow these expectations even when network failure is present.
+It can be stated that handshaking CYCLON behaves robust and very similar to its non-handshaking counterpart.
+Furthermore, it converges to its ideal state relatively fast as few cycles are needed to fill up a peers partial view.
+When the partial views are filled up CYCLON can be considered random thus providing properties of random graphs. 
+SCAMP`s non-handshaking version provides good results even when network errors are present.
+Furthermore, it converges to a smaller average clustering coefficient than CYCLON, which is preferred.
+This can be explained by the smaller number of peers in its partial views: as there are fewer interconnections there are also fewer redundant connections thus there are less cliques.
+In contrast, SCAMP converges very slowly (after around 20000 cycles) when compared to CYCLON as its lifespan must be selected carefully to avoid large chunks of the network to leave in parallel. 
 In the simulation we obtained this behavior by assigning random values over a range that is bigger than the number of peers.
-Because of this, SCAMP converges very slowly, when compared to CYCLON. 
-
+Handshaking with SCAMP, on the other hand, does not does not adapt to message loss.
+Even with low failure rates the graph quickly degrades until it is not connected anymore.
 Another observation is that the handshaking SCAMP becomes unreliable when network errors are introduced.
 The reason for this is that, with every lease and join on average more arcs are destroyed than created.
-This slowly degrades the graph until the point it gets disconnected.
-After a certain value, the graph is completely degenerated and does not connect nodes anymore (see: Figure \ref{fig:cluster_scamp3}).
+This slowly degrades the graph until it gets disconnected.
+The graph is completely degenerated and does not connect nodes anymore (see: Figure \ref{fig:cluster_scamp3}) after a certain time.
+
+\subsubsection{Average Path Length}
 
 The \emph{average path length} is the average of the shortest path length between nodes in the graph.
 It counts the hops to reach a node from a given source.
 We want the average path length to be small so that the whole network can be reached as fast as possible.
 
-\subsubsection{CYCLON}
-
-Figure \ref{fig:path_cyclon} show the average path length with CYCLON, run over $1000$ cycles.
-The x-axis denotes the path length while the y-axis denotes the cycle.
-
-The results mirror thous from the \emph{average cluster coefficient}: CYCLON seems to perform very similar with or without handshaking.
-Only a significant error rate degrades the handshaking version clearly.
+Figure \ref{fig:path_cyclon} shows the average path length with CYCLON, run over $1000$ cycles.
+The y-axis denotes the path length while the x-axis denotes the cycle.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=9cm]{Images/statistics/cyclon_1000_c20/avgpath/all}
-    \caption{average path length of the CYCLON protocol (no failure)}
+    \caption{average path length of the CYCLON protocol. }
     \label{fig:path_cyclon}
 \end{figure}
 
+Similar to the clustering coefficient, the average path length diverges slower when handshaking is involved.
+When the network error rate increases, the handshaking version becomes significantly wider than the non-handshaking one.
 
-\subsubsection{SCAMP}
-
-Figure \ref{fig:f_scamp1} show the average path length with SCAMP, run over $100000$ cycles.
+Figure \ref{fig:f_scamp1} shows the average path length with SCAMP, run over $100000$ cycles.
 Similar to the average cluster coefficient the handshake version degrades quickly when network failures are introduced.
-The reasons for this stay the same: as the lease and rejoin need to to perform many hops, this also represents many potential sources of error.
-Furthermore, as messages travel along the hops they get delayed, thus making nodes waiting for messages to arrive longer than in the non-handshaking version - this is the reason for the gaps in the graph.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=9cm]{Images/statistics/scamp_1000_c2/avgpath/all}
-    \caption{average path length of the SCAMP protocol (no failure)}
+    \caption{average path length of the SCAMP protocol. The y-axis denotes the path length in nodes and the x-axis denotes the number of cycles multiplied by 100.}
     \label{fig:f_scamp1}
 \end{figure}
 
+The non-handshaking version handles increasing error rates stabilizing at similar values.
+Without network failure, Handshaking SCAMP stabilizes at a similar length as the non-handshaking version - a notable difference are little gaps that sometimes occur that are not present in the non-handshaking variant.
+
+
+Figure \ref{fig:f_scamp3} shows the connectivity of the SCAMP protocol.
+The y-axis denotes the connectivity (ranging from 0 to 1) while the x-axis denotes the number of cycles multiplied by $100$.
+SCAMP without handshaking almost always has a high connectivity level - it sometimes drops for a while but recovers shortly after.
+When errors are introduced the path length quickly degrades to $0$ suggesting a disconnected graph.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=9cm]{Images/statistics/scamp_1000_c2/avgpath/con_10}
+    \caption{average connectivity of the SCAMP protocol (10\% failure). The x-axis denotes the number of cycles multiplied by 100 while the y-axis denotes the reaching quota of the network.}
+    \label{fig:f_scamp3}
+\end{figure}
+
+% REASON
+
+The results mirror those from the \emph{average clustering coefficient}: CYCLON seems to perform very similar with or without handshaking.
+Only a significant error rate degrades the handshaking version clearly.
+SCAMP on the other hand quickly degrades: the reasons for this stays the same: as the lease and rejoin need to to perform many hops, this also represents many potential sources of error.
+Furthermore, as messages travel along the hops they get delayed, thus making nodes waiting for messages to arrive longer than in the non-handshaking version - as we are only evaluating 10 random nodes\footnote{due to performance reasons} out of the network to calculate the average path length this explains the gaps in Figure \ref{fig:f_scamp1}.
+
 \section{SCAMPLON}
 
-The configuration value for SCAMPLON is $c$, which has the same purpose as the $c$ in SCAMP. In this simulation, $c = 3$. 
-This simulation compares SCAMPLON with CYCLON, both without handshaking.
-As previous experiments have shown, handshaking only adds constant complexity to CYCLON.
+SCAMPLON, being a cyclic peer sampling service, naturally shares more similarities and properties with CYCLON than with SCAMP.
+Because of that we compare those two protocols. 
+The configuration value for SCAMPLON is $c$, which has the same purpose as the $c$ in SCAMP. In this simulation, $c = 3$.
+Handshaking will not be used.
+As previous experiments have shown, it only adds constant complexity to CYCLON, and, as SCAMPLON shares the same philosophy, this can be transfered to it as well.
 
 \subsection{Average Cluster Coefficient}
 
-Figure \ref{fig:n1} compare the average clustering coefficient from SCAMPLON and CYCLON over the run of $400$ cycles.
-We can observer that SCAMPLON performs significantly better than CYCLON, at least, when the failure rate is low (below $23\%$).
- The reason for this is that SCAMPLON`s partial views have the almost ideal size of $\log{n}$ while CYCLON`s partial views with a value of $c=20$ exceed this optimum by far thous resulting in a higher interconnection which in turn results in a higher clustering degree.
+Figure \ref{fig:n1} compares the average clustering coefficient from SCAMPLON and CYCLON over the run of $400$ cycles.
+We can observer that SCAMPLON delivers a significantly better clustering coefficient than CYCLON when the failure rate is low but when the failure rate exceeds a certain turning point\footnote{In our experiments this was around $23\%$ failure rate} CYCLON starts to yield better results.
+The reason for this is that SCAMPLON`s partial view has an almost ideal size of $\log{n}$ while CYCLON`s partial view with a value of $c=20$ exceed this optimum by far thus resulting in a higher interconnection which in turn results in a higher clustering degree.
+However, when the failure rate increases, CYCLON outperforms SCAMPLON as it has more links that it can use as backup when others fail.
 
- However, when the failure rate gets higher, CYCLON outperforms SCAMPLON as it has more links that it can use as backup, when others fail.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=9cm]{Images/statistics/scamplon_1000_c3/cluster/all}
-    \caption{average cluster coefficient of the SCAMPLON and the CYCLON protocol (no failure)}
+    \caption{average cluster coefficient of the SCAMPLON and the CYCLON protocol. The y-axis denotes the clustering coefficient while the x-axis denotes the number of cycles.}
     \label{fig:n1}
 \end{figure}
+
+Another positive property of SCAMPLON is the fast convergence rate\footnote{here after around 25 cycles} which is magnitudes lower than at CYCLON`s.
+This can be explained by two properties: first:  smaller partial views saturate faster, and second: SCAMP`s subscription protocol is used for SCAMPLON which results in a better initial distribution of the network thus giving it a head start for the convergence rate.
+Figure \ref{fig:n1} underpins this theory as SCAMPLON has a very low maximum value when compared to CYCLON.
 
 \subsection{Average Path Length}
 
 Figure \ref{fig:np} compares the average path length between SCAMPLON and CYCLON.
-We observer that SCAMPLON converges faster than CYCLON, due to the smaller partial views and the better initial distribution due to the SCAMP initialization.
-
-However, in the long run CYCLON delivers a better average path length.
-The reason for this is that CYCLON maintains numerous links more than SCAMPLON and thus is better interconnected into its graph.
+As we observed previously SCAMPLON converges faster than CYCLON due to the smaller partial views and the better initial distribution thanks to SCAMP`s initialization.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=9.3cm]{Images/statistics/scamplon_1000_c3/path_len/p}
-    \caption{average path length of the SCAMPLON and the CYCLON protocol (no failure)}
+    \caption{average path length of the SCAMPLON and the CYCLON protocol. The y-axis denotes the number of hops while the the x-axis denotes the number of cycles.}
     \label{fig:np}
 \end{figure}
+
+However, in the long run CYCLON delivers a better average path length.
+The reason for this is that CYCLON maintains numerous links more than SCAMPLON and thus is better interconnected with other nodes which in turn results in a lower diameter of the graph.
 
 \subsection{Number of Arcs}
 
 Figure \ref{fig:narc} compares the number of arcs between SCAMPLON and CYCLON.
-The result yields no surprise as CYCLON has a bigger partial view and thus is interconnect better and thus has a higher count of arcs.
-
-SCAMPLON on the other hand has a constant number of arcs that were established by the initial SCAMP-protocol. 
+The y-axis denotes the number of total edges in the graph while the x-axis denotes the time in cycles. 
+The result yields no surprise as CYCLON has a bigger partial view and thus is interconnected better and thus has a higher count of arcs.
+CYCLON`s arc count converges to $|E_{CYCLON}|\approx c_{CYCLON} * n$.
+SCAMPLON on the other hand has a constant number of arcs that are established to $|E_{SCAMPLON}|\approx (c_{SCAMPLON}+1)n\log{n}$ by the initial SCAMP-protocol.
 The shuffle function cannot and must not change this value.
-
-A smaller number of arcs has the advantage that it reduces the numbers of redundant messages sent in the network thus improving the used bandwidth.
+A smaller number of arcs has the advantage of reducing the numbers of redundant messages sent in the network thus improving the used bandwidth.
 On the other hand, a high count of arcs can result in shorter paths and thus in faster message delivery.
 It also improves the resilience against failures.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=9.3cm]{Images/statistics/scamplon_1000_c3/arc_count/p}
-    \caption{Number of arcs in SCAMPLON and CYCLON (no failure)}
+    \caption{Number of arcs in SCAMPLON and CYCLON. The x-axis denotes the time passed in cycles while the y-axis denotes the arc count.}
     \label{fig:narc}
 \end{figure}
 
 \section{Conclusion}
 
-The conclusion of this chapter (alternatively of this part) is normally the culmination of this research work.  All the quality of the work, along with its limitations, have to be emphasised.  Also, you can draw some personal conclusion on the way this study has been conducted and what could be done better should you have the chance to restart it anew.
+We see that our proposed algorithm delivers desirable results which often even exceeds the qualities of CYCLON when the failure rate is low.
+Beyond that, SCAMPLON`s adaptive nature gives him additional advantages when compared to traditional cyclic protocols with fixed partial view sizes.
+The adaptiveness helps the protocol to be able to virtually always reach the whole network but also to keep the traffic and redundancy low - features that traditional cyclic protocols lack.
+
+However, further research must be conducted to evaluate SCAMPLON`s behavior under churn\footnote{Nodes dynamically leaving and joining the network} to observe the interplay of SCAMP`s subscription protocol with SCAMPLON`s cyclic algorithm.
+Additionally, a handshake version must be investigated to validate that the non-handshaking properties can be transfered as it was assumed in this report.
+Last, the protocol should be implemented in WebRTC to evaluate it under real network conditions.
+The code for the experiments can be found on github\footnote{https://github.com/justayak/peersim-1.0.5}.
 
 %--------------------------------------------------------------------------------
 
 \chapter{Conclusion}
 
-By the end of the work, you should firstly summarise the main steps and key results of the study.  Then, you should describe the research directions that this work opens, both simple extensions and new endeavours.
-
-WebRTC
-
-Handshaking
-
-Comparison of SCAMP and CYCLON
-
-Defining new algorithm SCAMPLON
-
-Experiments on Peersim.
+The experiments with SCAMPLON provide good result showing that it is a potential candidate for our WebRTC peer sampling service.
+Another good candidate is CYCLON as it can easily be adapted for handshaking with which it performs reliable and robust even with network failures.
 
 \section{Summary}
 
-Even if it is yet another repetition, it is convenient to summarise not the whole report but at least your own work and results, stressing their value.
+Our study can be divided in three parts:
+First, we wanted to find an efficient and scalable peer sampling service for WebRTC.
+As we want to avoid the use of central services as much as possible and instead use local knowledge whenever possible we had to enable the distributed network to fulfill tasks usually handled by a central server.
+This task is the handshaking that is mandatory to connect two WebRTC clients with each other.
+We implemented handshaking in WebRTC\footnote{https://github.com/justayak/handshake} and concluded that this task can successfully be handled in a distributed manner.
 
-New efficient and simple algorithm
+Secondly, we compared two well known peer sampling services, SCAMP and CYCLON, regarding their properties when adapted to handshaking mechanics.
+We concluded that CYCLON can handle handshaking fairly well even when in erroneous networks.
+SCAMP on the other hand quickly degenerates and thus is not a good choice when handshaking should be executed by the protocol.
+However, we found SCAMP`s adaptive view size very desirable as it significantly reduces the messaging overhead when used for information dissemination.
 
-Take the simple part from SCAMP and from CYCLON
+This led to the third step: the creating of SCAMPLON, a cyclic peer sampling service that tries to combine the good properties of SCAMP`s adaptive partial view size, CYCLON`s robustness regarding handshaking and CYCLON`s fast convergence rate.
+Our experiments show that SCAMPLON satisfies the desired properties.
 
 \section{Outcomes}
 
-The new Algorithm SCAMPLON
+The outcome of our research is the new cyclic peer sampling algorithm SCAMPLON.
+It combines the two protocols SCAMP and CYCLON, is simple and, most of the time, it makes use of peers with close proximity making it a good candidate for a handshaking WebRTC environment.
 
 \section{Research directions}
 
-It is quite rare that a given work totally closes a topic!  Even in that case, it remains possible to introduce new research directions, more or less connected to the topic and the new state-of-the-art.  More generally, you can mention all and every question that has arisen during the course of your work.
-
-The algorithm must be tested against churn 
-
-Only message failure was tested, not complete node failure
-
-Unsubscription was not tested so far
-
-Actual implementation in WebRTC to test it in a real environment
+Further research must be devoted to SCAMPLON`s behavior under churn.
+Additionally, we must evaluate how the failure of full nodes affect the network as there is no lease mechanism to repair the overall structure.
+So far, the unsubscription was not tested which is an important part of the protocol.
+And, least, the protocol must be implemented in WebRTC to see how it behaves under network conditions.
 
 %--------------------------------------------------------------------------------
 
@@ -893,152 +900,12 @@ Actual implementation in WebRTC to test it in a real environment
 
 \appendix
 
-\chapter{Quoting Correctly}
-\label{ann:Citations}
-
-When copying verbatim the text of some author, i.e., doing a copy-paste operation from an electronic document or simply rewriting it by hand, you must obey some rules.
-
-\section{Short Quotations}
-
-Short quotations are written << on-line >> but emphasised by being put:
-\begin{enumerate}
-   \item into italics;
-   \item between quotes;
-   \item followed by the reference to the original text from which it has been extracted.
-\end{enumerate}
-
-In that way, we could write \emph{``[s]i on est trop jeune, on ne juge pas bien [;] [s]i on est trop vieil, de même''}\footnote{if one is too young, one does not judge well;  so if one is too old} \cite{Pascal-1671}.
-
-The rationale is to clearly give credit to the author.
-
-\bigskip
-
-In the previous example, notice that some parts of the text are put between squared brackets.
-This are parts of the original text that have been slightly modified in order to fit the syntactic and grammatical rules of the whole sentence.
-Here, that corresponds to an original sentence that has been transformed into a subordinate.
-
-The most important of those marks is the ellipsis (unused here), denoted ``[\ldots]'.
-It corresponds to a part of the text that has been removed.
-The reason for doing that can be to avoid a digression from the main matter.
-Nevertheless, omitting to inform the reader that the text has been purged is a means to lie to the reader and possibly to change the original meaning of the text, whether intentionally or not.
-
-\section{Long Quotations}
-
-Longer quotations -- from a few sentences to some paragraphs -- use a specific format, illustrated below.
-The whole borrowed text is indented and still obeys the previous rules.
-
-For instance, by taking the full original text of the previous example, we obtain:
-\begin{quote}
-   \emph{<< Si on est trop jeune, on ne juge pas bien. Si on est trop vieil, de même. Si on n'y songe pas assez, si on y songe trop, on s'entête, \& l'on ne peut trouver la vérité. >>}\footnote{If one is too young, one does not judge well;  so if one is too old.  If one does not think enough, or too much, one gets obstinate and cannot find the truth.} \cite{Pascal-1671}
-\end{quote}
-
-\section{Foreign Languages}
-
-When the text is written in a foreign language, it must be kept into its original format, and the other rules are the same.
-However, in addition, a translation should be given as a footnote (which can help to detect misunderstandings!\ldots).
-
-\section{Figures}
-
-Any kind of schema (figures, tables) belonging to someone else can only be copied with parcimony and by referencing the source in the legend.
-
-\section{Plagiarism}
-\label{ann:Plagiarism}
-
-Any other usage of someone else production means plagiarism, more or less shameless depending of the number of modifications that have been made on the original source.
-
-For instance, the following text:
-\begin{quote}
-   Dans le monde réel, très rares sont les situations où l'on serait capable d'effectuer une partition nette d'un ensemble d'objets en des parties disjointes, voire même aux frontières clairement établies. La gradualité du passage entre des classes différentes aux frontières non reconnaissables n'est-elle pas l'une des motivations essentielles, sinon la première, qui furent à l'origine de la naissance de la théorie des sous-ensembles flous. Les techniques floues de classification sont souvent nées de la tentative de généralisation de techniques déjà existantes d'après \cite{Khodja-97}.
-\end{quote}
-is an awkward ``quotation'' of:
-\begin{quote}
-   \emph{<< En effet, dans le monde réel qui nous entoure, très rares sont les situations où l'on serait capable d'effectuer une partition nette d'un ensemble d'objets en des parties disjointes, voire même aux frontières clairement établies. La gradualité du passage entre des classes différentes aux frontières non reconnaissables n'est-elle pas l'une des motivations essentielles, sinon la première, qui furent à l'origine de la naissance de la théorie des sous-ensembles flous [ZAD65]. L'introduction du concept de fonction d'appartenance dans des techniques de classification, et ce, très rapidement après la parution de l'article séminal de Zadeh, et les différents travaux qui le suivirent, témoignent de la fertilité de l'apport de la théorie des sous-ensembles flous au vaste champ de la classification, qui y trouve un cadre beaucoup plus naturel que celui offert par la théorie classique des ensembles. >>} \cite{Khodja-97}
-\end{quote}
-
-In fact, the first ``quotation'' makes the reader presume that this a point of view shared by several authors rather than really a quote.
-Besides, the reference is associated to the last sentence rather the whole paragraph.
-
-\bigskip
-
-As another example, the following text:
-\begin{quote}
-La problématique de l'intégration repose sur la standardisation de données internes à l'entreprise, mais aussi des données externes.
-
-Si on prend l'exemple d'une entreprise on aura besoin de ses données internes et externes c'est-à-dire celles des clients et fournisseurs de cette entreprise.
-
-Ce n'est qu'avec une bonne intégration que l'on peut offrir une vision homogène, complète et véritablement transverse de l'entreprise. Pour cela il faut que le système d'information de l'entreprise soit parfaitement structuré, maîtrisé et d'un bon niveau d'intégration. Si tel n'est pas le cas, l'entrepôt de données ne pourra pas être mis en \oe uvre à cause de la qualité des données qui reste mauvaise.
-\end{quote}
-is not only a plagiarism but moreover a voluntary plagiarism with some kind of dissimulation:
-\begin{quote}
-\emph{<< La problématique de l'intégration repose sur la standardisation de données internes à l'entreprise, mais aussi des données externes (provenant par exemple de clients ou de fournisseurs).}
-
-\emph{Ce n'est qu'au prix d'une intégration poussée que l'on peut offrir une vision homogène et véritablement transverse de l'entreprise. Ce[la] suppose que le système d'information de l'entreprise en amont soit bien structuré, bien maîtrisé, et bénéficie déjà d'un niveau d'intégration suffisant. Si tel n'est pas le cas, la mauvaise qualité des données peut empêcher la mise en \oe uvre de l'entrepôt de données. >>}\footnote{\emph{Entrepôt de données}. Wikipedia, 3 février 2010, \url{http://fr.wikipedia.org/wiki/Entrepôt_de_données}}
-\end{quote}
-
-\vspace{2\baselineskip}
-
-In short, ``copy-and-paste'' operations are allowed under strict and restrictive conditions that:
-\begin{itemize}
-   \item they must be perfectly identifiable;
-   \item the original references must be provided in the bibliography or as footnotes;
-   \item they must be short;
-   \item they must not be numerous.
-\end{itemize}
-
-In contrast, it is possible, and even highly recommended, to \emph{reformulate} with your own words and within the context of the report, the \emph{ideas} that have been found in the literature.  In that case, intellectual honesty is ``limited'' to adding the references to the sources in the text.
-
-\bigskip
-
-\begin{center}
-   \fcolorbox{red}{yellow}{
-      \color{red}
-      \large
-      \begin{minipage}[c]{0.8\columnwidth}
-         Violators of these rules will be prosecuted in front of the disciplinary committee of the university.
-
-         A fraud leads to the cancellation of the project, at the very least, up to the expulsion from the university as well as the prohibition to pass a public exam for five years!
-      \end{minipage}
-   }
-\end{center}
-
-\chapter{Reminder}
-\label{app:Reminder}
-
-A reminder appendix can contain information that is supposed to be known by the reader but that is worth to include in the report in order to make it self-contained.
-
-If the reminder contains only a list of short definitions, consider naming it ``Glossary'' instead.  You can have both.
-
-For instance, we can write down: ``The average can be computed differently whether the individuals are grouped or not, their exact number known or only their frequency, i.e.:
-\begin{eqnarray}
-    \mu & = & \frac{1}{n} \sum_{i=1}^n x_i\\
-    \mu & = & \frac{1}{N} \sum_{i=1}^m x_i \times n_i\\
-    \mu & = & \sum_{i=1}^m x_i \times f_i
-\end{eqnarray}
-with:
-\begin{itemize}
-    \item $N = \sum_{i=1}^m n_i$ ;
-    \item $f_i = \frac{n_i}{N}$.''
-\end{itemize}
-
-\chapter{Detailed Measures}
-\label{app:Measures}
-
-Lengthy sub-results have to be put in appendices.  In other words, too boring details should be postponed to the very last part of the reading, that is when the reader is interested enough in understanding the very details of your proposal, especially if he or she intend to reproduce your experiment.  This is also true for detailed algorithms, etc.
-
-This (these) appendix(ces) is (are) mandatory in order for the report to contain of the ``proofs'' of its claims, i.e., to really provide a \emph{scientific} work.
-
 \chapter{Annotated References}
 \label{app:FichesLecture}
 
-It is a good idea to provide a short summary of each of the papers in the references.
+\paragraph{\emph{CYCLON: Inexpensive Membership Management for Unstructured P2P Overlays}.}
 
-For each paper or book (in rare cases a \emph{complete and persistent} web site), you should extract the following kind of information:  firstly, a short summary;  then, your own analysis.
-
-This is slightly redundant with the state-of-the-art chapter. However, notice that it lacks the overall synthesis, and it focuses on a single paper at a time.  In fact, this greatly helps to achieve the state-of-the-art.
-
-\paragraph{\emph{Title of a paper}.}
-
-Describe rapidly what problem is attacked in the paper (add the reference, e.g. \cite{Pascal-1671}).
+Describe rapidly what problem is attacked in the paper (add the reference, e.g. \cite{Voulgaris05cyclon:inexpensive}).
 
 \subparagraph{Summary.}
 
