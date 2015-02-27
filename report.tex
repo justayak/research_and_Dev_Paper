@@ -15,7 +15,7 @@
 
 \begin{document}
 
-\title{SCAMPLON: A Peer Sampling Service for WebRTC}
+\title{SCAMPLON: A Peer Sampling Service for WebRTC} 
 \subtitle{Gossiping with Handshakes}
 
 \authorA{Julian}{Tanke}
@@ -24,14 +24,14 @@
 \cosupervisor{Brice}{Nedelec}
    % In case, there are more than two supervisors, use the following trick:
    %    \cosupervisor{Jean}{Cadre \& {\normalfont Still} Another}
-\coordinator{José}{Martinez}
+\coordinator{Jos{\'{e}}}{Martinez}
 \institution{LINA}
    % - LINA when you're supervised by members of the research teams GRIM or COD (may be some others);
    % - IRCCyN when youre supervised by members of the research team IVC;
    % - XXX when supervised by another organism
    %   (In that case, you have to provide, in the "logos" directories, the files named: XXX.pdf -- if not XXX.jpeg or XXX.png -- for pdflatex *and* XXX.eps for latex);
    % - otherwise comment it
-\theme{\'Equipe GRIM}
+\theme{\'Equipe GDD}
    % - optionally provide it when an institution has been declared (GRIM, COD or IVC for the local research teams)
    % - otherwise comment it
 %\coinstitution{Centre national de la recherche scientifique}{CNRS}{1.7cm}
@@ -161,7 +161,7 @@ Finally, the conclusion summarises the work and introduce new research issues th
 
 \section{WebRTC}
 
-Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browsers \cite{webrtc}.
+Web Real-Time Communications (WebRTC) is a client-side API to enable Real-Time Communications in web browsers \footnote{http://www.webrtc.org/}.
 It is an implementation of SRTP\footnote{Secure Real-time Transport Protocol} with an SDP\footnote{Sockets Direct Protocol} control mechanism on top that can use STUN, TURN and ICE for NAT traversal.
 
 \textit{These APIs should enable building applications that can be run inside a browser, requiring no extra downloads or plug-ins, that allow communication between parties using audio, video and supplementary real-time communication, without having to use intervening servers (unless needed for firewall traversal, or for providing intermediary services).}
@@ -194,9 +194,9 @@ Bob accepts the request that Alice sends to him and wants to communicate. To do 
 
 \section{Massive Collaborative Editing}
 
-One application for a gossip-based WebRTC network is a massive collaborative editor \cite{nedelec:hal-00921633}\cite{MassCollab} that runs in the web browser.
+One application for a gossip-based WebRTC network is a massive collaborative editor \cite{nedelec:hal-00921633} that runs in the web browser.
 Unlike current solutions such as Google Docs, Microsoft Word Online or Etherpad we want to support millions of users on one document (e.g. Google Docs only allows 50 users to work on one document).
-\cite{MassCollab} describes how parallel editing can scale well with the number of users, implied that some sort of broadcast exists.
+It describes how parallel editing can scale well\footnote{https://github.com/Chat-Wane/LSEQ} with the number of users, implied that some sort of broadcast exists.
 However, no assumptions are made about how this broadcast is done.
 A centralized service or a fully connected graph do not scale well with the user count.
 Instead, using the proposed gossip-based peer-to-peer protocol for WebRTC will make the application more scalable and robust.
@@ -506,7 +506,7 @@ As the protocol is based on CYCLON it also inherits CYCLONS connectivity propert
 That means that no node becomes disconnected as a result of a shuffling operation.
 We show that even with the variable partial view size the graph stays connected when subject to an shuffle:
 
-\begin{figure} [H]
+\begin{figure}
     \centering
     \includegraphics[width=8cm]{Images/graphs/ex1}
     \caption{Shuffle from $a$ to $b$. The left graph represents before and the right graph represents after the shuffle. The link is inverted and $b$ transfers some of its peers to $a$.}
@@ -520,7 +520,7 @@ When two subsets $A$ and $B$ are connected by at least one link, the link will b
 
 We can also show that the property of holding multiple links to the same peer, as described in figure \ref{fig:ex2}, will not affect the overall network in the long run.
 
-\begin{figure} [H]
+\begin{figure}
     \centering
     \includegraphics[width=8cm]{Images/graphs/ex2}
     \caption{Shuffle from $a$ to $b$. The left graph represents before and the right graph represents after the shuffle. The link is inverted and $b$ and $a$ exchanged random peers.
@@ -540,7 +540,7 @@ In deterministic (~ $\log{n}$ shuffles) time, this non-looping node will be sele
 This potentially removes some or all looping arcs from $p_{loop}$.
 Alternatively, the outside link can be passed inside the loop and potentially replace the pointers that create the loop.
 
-\begin{figure} [H]
+\begin{figure}
     \centering
     \includegraphics[width=8cm]{Images/graphs/ex3}
     \caption{Shuffle from $a$ to $b$. An external node breaks the loop.}
@@ -684,7 +684,7 @@ It should be noted that the handshaking algorithm converges towards a slightly h
 When network errors are introduced, the handshaking variant degrades faster than the non-handshaking version.
 
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=9cm]{Images/statistics/cyclon_1000_c20/all}
     \caption{average clustering of the CYCLON protocol.
@@ -696,7 +696,7 @@ Figure \ref{fig:cluster_scamp3} show the average clustering coefficient with SCA
 The first thing to note is that SCAMP needs notably more cycles to converge than CYCLON.
 While CYCLON converges after roughly 200 cycles, SCAMP fully converges only after around 20000 cycles.
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=9cm]{Images/statistics/scamp_1000_c2/cluster/all}
     \caption{average clustering of the SCAMP protocol. The x-axis denotes the number of cycles while the y-axis denotes the cluster coefficient.}
@@ -891,7 +891,8 @@ And, least, the protocol must be implemented in WebRTC to see how it behaves und
 
 \nocite{*} % to be removed, actual citations in the report must be necessary and sufficient (this is just to create a fake bibliography in the model)
 
-\bibliography{rapport}
+%\bibliography{rapport}
+\bibliography{report}
 
 \listoffigures{}
 
